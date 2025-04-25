@@ -18,6 +18,11 @@ Button::Button(const std::string &chosenText, const sf::Font &chosenFont, const 
 }
 
 void Button::checkClick(const sf::Vector2f &mousePos) {
+
+    if (!isVisible) {
+        return;
+    }
+
     if (shape.getGlobalBounds().contains(mousePos)) {
         if (click) click();
     }
@@ -30,6 +35,10 @@ void Button::setFont(const sf::Font &newFont) {
 
 void Button::setColor(const sf::Color &newColor) {
     shape.setFillColor(newColor);
+}
+
+void Button::setVisibility(bool newVisibility) {
+    isVisible = newVisibility;
 }
 
 void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const {

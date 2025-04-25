@@ -8,6 +8,7 @@ struct Button : sf::Drawable {
     sf::Font font;
     sf::RectangleShape shape;
     std::function<void()> click;
+    bool isVisible = true;
 
     Button(const std::string &chosenText, const sf::Font &chosenFont, const sf::Vector2f &pos,
            const std::function<void()> onClick);
@@ -15,6 +16,8 @@ struct Button : sf::Drawable {
     void checkClick(const sf::Vector2f &mousePos);
 
     void setFont(const sf::Font &newFont);
+
+    void setVisibility(bool newVisibility);
 
     void setColor(const sf::Color &newColor);
 

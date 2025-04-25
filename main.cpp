@@ -3,6 +3,7 @@
 #include <sfML/Graphics.hpp>
 #include <string>
 #include "Button.hpp"
+#include "randomWords.hpp"
 
 auto main() -> int {
 
@@ -112,17 +113,28 @@ auto main() -> int {
         if (!clearWindow && !newWindow) { //poczatkowe okienko
             window.clear(sf::Color::Black);
             window.draw(Title);
+            startButton.setVisibility(true);
             window.draw(startButton);
+            fontButton.setVisibility(true);
             window.draw(fontButton);
 
         }else if (!clearWindow && newWindow){ //okienko po zmiane czcionki
             window.clear(sf::Color::Black);
             window.draw(Title);
+            startButton.setVisibility(true);
             window.draw(startButton);
+            fontButton.setVisibility(true);
             window.draw(fontButton);
         }else { //okienko po startbutton
             window.clear(sf::Color::Black);
+            startButton.setVisibility(false);
+            fontButton.setVisibility(false);
             window.draw(backButton);
+
+            static auto vec = randomWords::wordsFromFile("/Users/bartekszkola/Documents/PJC/MONKEY3/words.txt");
+            auto randomText = randomWords::wordsGenerator(vec, currentFont);
+            window.draw(randomText);
+
         }
 
         window.display();
