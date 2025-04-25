@@ -1,5 +1,6 @@
 #include <iostream>
-#include <SFML/Graphics.hpp>
+
+#include <sfML/Graphics.hpp>
 #include <string>
 #include "Button.hpp"
 
