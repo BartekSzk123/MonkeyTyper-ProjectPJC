@@ -25,7 +25,7 @@ auto main() -> int {
 
 
     auto clearWindow = false;
-    auto newWindow = false;
+    auto optionWindow = false;
     auto fontsPaths = std::vector<std::string>{
         "../Times New Roman.ttf",
         "../Courier.ttf",
@@ -38,19 +38,35 @@ auto main() -> int {
     //button start
     auto startButton = Button(
         "START",
+        25,
         currentFont,
+        sf::Vector2f(200,50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 4),
-        [&]() {
+        [&]()-> void {
             clearWindow = true;
         });
+
+
+    auto optionButton = Button(
+        "OPTION",
+        25,
+        currentFont,
+        sf::Vector2f(200,50),
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
+        [&]()-> void {
+            optionWindow = true;
+        }
+        );
 
     //button do zmianny czcionki
     auto fontButton = Button(
         "CHANGE FONT",
+        25,
         currentFont,
-        sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.5f),
-        [&buttons, &newWindow,&currentFont, &fontIndex, &fontsPaths]() {
-            newWindow = true;
+        sf::Vector2f(200,50),
+        sf::Vector2f(window.getSize().x / 3, window.getSize().y / 4),
+        [&]()-> void {
+            window.clear(sf::Color::Black);
             currentFont = sf::Font(fontsPaths[fontIndex]);
             fontIndex = (fontIndex + 1) % fontsPaths.size();
             for (auto &button: buttons) {
@@ -58,33 +74,63 @@ auto main() -> int {
             }
         });
 
-
     //button powrotu to po klikenicu start
     auto backButton = Button(
         "BACK",
+        15,
         currentFont,
-        sf::Vector2f(100, 25),
+        sf::Vector2f(100,25),
+        sf::Vector2f(50, 12.5),
         [&]() {
             clearWindow = false;
+            optionWindow = false;
         });
+    backButton.setSizeOfShape(100,25);
 
     auto speedVecotor = std::vector<int>{60,120,180,240};
     auto speedIndex = 0;
 
     auto wordsSpeedButton = Button(
-        "CHANGE SPEED",
+        "SPEED: " + std::to_string(speed),
+        25,
         currentFont,
-        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.85),
+        sf::Vector2f(200,50),
+        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 4),
         [&]() -> void {
-            speed = speedVecotor[speedIndex];
-            speedIndex = (speedIndex + 1) % speedVecotor.size();
-            window.setFramerateLimit(speed);
         });
 
+    wordsSpeedButton.setNewFunction([&]() {
+        speed = speedVecotor[speedIndex];
+        speedIndex = (speedIndex + 1) % speedVecotor.size();
+        window.setFramerateLimit(speed);
+        wordsSpeedButton.setText("SPEED: " + std::to_string(speed));
+    });
+
+    auto charSizesVecotor = std::vector<int>{15,25,35,45,55};
+    auto charSizesIndex = 0;
+
+    auto charSizeButton = Button(
+        "TEXT SIZE: " + std::to_string(randomWords::charSize),
+        25,
+        currentFont,
+        sf::Vector2f(200,50),
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
+        [&]()-> void {
+
+        });
+
+    charSizeButton.setNewFunction([&]() {
+       randomWords::setRandomwordsSize(charSizesVecotor[charSizesIndex]);
+       charSizesIndex = (charSizesIndex + 1) % charSizesVecotor.size();
+       charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
+    });
+
     buttons.emplace_back(&startButton);
+    buttons.emplace_back(&optionButton);
     buttons.emplace_back(&backButton);
     buttons.emplace_back(&fontButton);
     buttons.emplace_back(&wordsSpeedButton);
+    buttons.emplace_back(&charSizeButton);
 
     //event zamykania
     auto const onClose = [&window](sf::Event::Closed const &) {
@@ -128,36 +174,41 @@ auto main() -> int {
 
         window.handleEvents(onClose, ButtonClick, ButtonHovered);
 
-        if (!clearWindow && !newWindow) {
+        if (!clearWindow && !optionWindow) {
             //poczatkowe okienko
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(true);
             window.draw(startButton);
-            fontButton.setVisibility(true);
-            window.draw(fontButton);
-            wordsSpeedButton.setVisibility(true);
-            window.draw(wordsSpeedButton);
-
-        } else if (!clearWindow && newWindow) {
-            //okienko po zmiane czcionki
-            window.clear(sf::Color::Black);
-            window.draw(Title);
-            startButton.setVisibility(true);
-            window.draw(startButton);
-            fontButton.setVisibility(true);
-            window.draw(fontButton);
-            wordsSpeedButton.setVisibility(true);
-            window.draw(wordsSpeedButton);
-        } else {
-            //okienko po startbutton
-
-            window.clear(sf::Color::Black);
-
-            startButton.setVisibility(false);
+            optionButton.setVisibility(true);
+            window.draw(optionButton);
             fontButton.setVisibility(false);
             wordsSpeedButton.setVisibility(false);
+            backButton.setVisibility(false);
+            charSizeButton.setVisibility(false);
 
+        } else if (!clearWindow && optionWindow) {
+
+            window.clear(sf::Color::Black);
+            window.draw(Title);
+            startButton.setVisibility(false);
+            fontButton.setVisibility(true);
+            window.draw(fontButton);
+            wordsSpeedButton.setVisibility(true);
+            window.draw(wordsSpeedButton);
+            charSizeButton.setVisibility(true);
+            window.draw(charSizeButton);
+            backButton.setVisibility(true);
+            window.draw(backButton);
+
+        } else {
+            //okienko po startbutton
+            window.clear(sf::Color::Black);
+            startButton.setVisibility(false);
+            optionButton.setVisibility(false);
+            fontButton.setVisibility(false);
+            wordsSpeedButton.setVisibility(false);
+            backButton.setVisibility(true);
             window.draw(backButton);
 
             if (clock.getElapsedTime().asSeconds() > 1) {

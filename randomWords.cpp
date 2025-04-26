@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
+int randomWords::charSize = 25;
+
 auto randomWords::wordsFromFile(const std::string &filePath) -> std::vector<std::string> {
     auto wordsVecotr = std::vector<std::string>();
     auto file = std::fstream(filePath);
@@ -23,8 +25,12 @@ auto randomWords::wordsGenerator(const std::vector<std::string> &words, const sf
     auto x = 5;
     auto y = std::rand() % 500;
 
-    auto generatedWord = sf::Text(chosenFont, word, 25);
+    auto generatedWord = sf::Text(chosenFont, word, charSize);
     generatedWord.setFillColor(sf::Color::White);
     generatedWord.setPosition(sf::Vector2f(x, y));
     return generatedWord;
+}
+
+auto randomWords::setRandomwordsSize(const int &size) -> void {
+    charSize = size;
 }

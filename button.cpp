@@ -1,8 +1,8 @@
 #include "Button.hpp"
 
-Button::Button(const std::string &chosenText, const sf::Font &chosenFont, const sf::Vector2f &pos,
-               const std::function<void()> onClick)
-    : font(chosenFont), text(font, chosenText, 25), shape(sf::Vector2f(200, 50)), click(onClick) {
+Button::Button(const std::string &chosenText,const int &charSize, const sf::Font &chosenFont,const sf::Vector2f &size, const sf::Vector2f &pos,
+           const std::function<void()> onClick)
+    : font(chosenFont), text(font, chosenText, charSize), shape(sf::Vector2f(size)), click(onClick) {
     text.setFillColor(sf::Color::Black);
     text.setOrigin(sf::Vector2f(
             text.getLocalBounds().position.x + text.getLocalBounds().size.x / 2,
@@ -39,6 +39,18 @@ void Button::setColor(const sf::Color &newColor) {
 
 void Button::setVisibility(bool newVisibility) {
     isVisible = newVisibility;
+}
+
+void Button::setText(const std::string &newText) {
+    text.setString(newText);
+}
+
+void Button::setSizeOfShape(const int &newSizeX, const int &newSizeY) {
+    shape.setSize(sf::Vector2f(newSizeX, newSizeY));
+}
+
+void Button::setNewFunction(const std::function<void()> newOnClick) {
+    click = newOnClick;
 }
 
 void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const {
