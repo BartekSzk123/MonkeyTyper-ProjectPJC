@@ -1,18 +1,19 @@
 #include <iostream>
-
 #include <sfML/Graphics.hpp>
 #include <string>
 #include "Button.hpp"
 #include "randomWords.hpp"
 
 auto main() -> int {
-
     // tworzymy okienko
     auto window = sf::RenderWindow(
         sf::VideoMode({800, 600}), "Monkey",
         sf::Style::Default, sf::State::Windowed,
         sf::ContextSettings{.antiAliasingLevel = 8}
     );
+
+    auto speed =180;
+    window.setFramerateLimit(speed);
 
     // tworzymy tytul
     auto currentFont = sf::Font("../Arial.ttf");
@@ -32,7 +33,7 @@ auto main() -> int {
     };
     auto fontIndex = 0;
 
-    auto buttons = std::vector<Button*>();
+    auto buttons = std::vector<Button *>();
 
     //button start
     auto startButton = Button(
@@ -52,7 +53,7 @@ auto main() -> int {
             newWindow = true;
             currentFont = sf::Font(fontsPaths[fontIndex]);
             fontIndex = (fontIndex + 1) % fontsPaths.size();
-            for (auto &button : buttons) {
+            for (auto &button: buttons) {
                 button->setFont(currentFont);
             }
         });
@@ -60,16 +61,30 @@ auto main() -> int {
 
     //button powrotu to po klikenicu start
     auto backButton = Button(
-       "BACK",
-       currentFont,
-       sf::Vector2f(100, 25),
-       [&]() {
-           clearWindow = false;
-       });
+        "BACK",
+        currentFont,
+        sf::Vector2f(100, 25),
+        [&]() {
+            clearWindow = false;
+        });
+
+    auto speedVecotor = std::vector<int>{60,120,180,240};
+    auto speedIndex = 0;
+
+    auto wordsSpeedButton = Button(
+        "CHANGE SPEED",
+        currentFont,
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.85),
+        [&]() -> void {
+            speed = speedVecotor[speedIndex];
+            speedIndex = (speedIndex + 1) % speedVecotor.size();
+            window.setFramerateLimit(speed);
+        });
 
     buttons.emplace_back(&startButton);
     buttons.emplace_back(&backButton);
     buttons.emplace_back(&fontButton);
+    buttons.emplace_back(&wordsSpeedButton);
 
     //event zamykania
     auto const onClose = [&window](sf::Event::Closed const &) {
@@ -79,65 +94,83 @@ auto main() -> int {
     //event klikniecia
     auto const ButtonClick =
             [&buttons]
-            (sf::Event::MouseButtonPressed const &e) {
-            if (e.button == sf::Mouse::Button::Left) {
+    (sf::Event::MouseButtonPressed const &e) {
+        if (e.button == sf::Mouse::Button::Left) {
+            for (auto &b: buttons) {
+                auto clicked = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
 
-                for (auto &b: buttons) {
-                    auto clicked = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
-
-                    if (clicked) {
-                        b->checkClick(sf::Vector2f(e.position.x,e.position.y));
-                    }
+                if (clicked) {
+                    b->checkClick(sf::Vector2f(e.position.x, e.position.y));
                 }
             }
+        }
     };
 
     auto const ButtonHovered =
             [&buttons]
-            (sf::Event::MouseMoved const &e) {
-            for (auto &b: buttons) {
-                auto hoverd = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
+    (sf::Event::MouseMoved const &e) {
+        for (auto &b: buttons) {
+            auto hoverd = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
 
-                if (hoverd) {
-                    b->setColor({192,192,192});
-                }else {
-                    b->setColor(sf::Color::White);
-                }
+            if (hoverd) {
+                b->setColor({192, 192, 192});
+            } else {
+                b->setColor(sf::Color::White);
             }
+        }
     };
+
+    auto generatedWords = std::vector<sf::Text>();
+    auto vec = randomWords::wordsFromFile("../words.txt");
+    auto clock = sf::Clock();
 
     while (window.isOpen()) {
 
         window.handleEvents(onClose, ButtonClick, ButtonHovered);
 
-        if (!clearWindow && !newWindow) { //poczatkowe okienko
+        if (!clearWindow && !newWindow) {
+            //poczatkowe okienko
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(true);
             window.draw(startButton);
             fontButton.setVisibility(true);
             window.draw(fontButton);
+            wordsSpeedButton.setVisibility(true);
+            window.draw(wordsSpeedButton);
 
-        }else if (!clearWindow && newWindow){ //okienko po zmiane czcionki
+        } else if (!clearWindow && newWindow) {
+            //okienko po zmiane czcionki
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(true);
             window.draw(startButton);
             fontButton.setVisibility(true);
             window.draw(fontButton);
-        }else { //okienko po startbutton
+            wordsSpeedButton.setVisibility(true);
+            window.draw(wordsSpeedButton);
+        } else {
+            //okienko po startbutton
+
             window.clear(sf::Color::Black);
+
             startButton.setVisibility(false);
             fontButton.setVisibility(false);
+            wordsSpeedButton.setVisibility(false);
+
             window.draw(backButton);
 
-            static auto vec = randomWords::wordsFromFile("/Users/bartekszkola/Documents/PJC/MONKEY3/words.txt");
-            auto randomText = randomWords::wordsGenerator(vec, currentFont);
-            window.draw(randomText);
+            if (clock.getElapsedTime().asSeconds() > 1) {
+                generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont));
+                clock.restart();
+            }
 
+            for (auto &word: generatedWords) {
+                word.move({1,0});
+                window.draw(word);
+            }
         }
 
         window.display();
-
     }
 }
