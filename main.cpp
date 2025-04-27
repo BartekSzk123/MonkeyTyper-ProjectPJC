@@ -12,7 +12,7 @@ auto main() -> int {
         sf::ContextSettings{.antiAliasingLevel = 8}
     );
 
-    auto speed =180;
+    auto speed = 180;
     window.setFramerateLimit(speed);
 
     // tworzymy tytul
@@ -40,7 +40,7 @@ auto main() -> int {
         "START",
         25,
         currentFont,
-        sf::Vector2f(200,50),
+        sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 4),
         [&]()-> void {
             clearWindow = true;
@@ -51,19 +51,19 @@ auto main() -> int {
         "OPTION",
         25,
         currentFont,
-        sf::Vector2f(200,50),
+        sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
         [&]()-> void {
             optionWindow = true;
         }
-        );
+    );
 
     //button do zmianny czcionki
     auto fontButton = Button(
         "CHANGE FONT",
         25,
         currentFont,
-        sf::Vector2f(200,50),
+        sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 3, window.getSize().y / 4),
         [&]()-> void {
             window.clear(sf::Color::Black);
@@ -79,22 +79,21 @@ auto main() -> int {
         "BACK",
         15,
         currentFont,
-        sf::Vector2f(100,25),
+        sf::Vector2f(100, 25),
         sf::Vector2f(50, 12.5),
         [&]() {
             clearWindow = false;
             optionWindow = false;
         });
-    backButton.setSizeOfShape(100,25);
 
-    auto speedVecotor = std::vector<int>{60,120,180,240};
+    auto speedVecotor = std::vector<int>{60, 120, 180, 240};
     auto speedIndex = 0;
 
     auto wordsSpeedButton = Button(
         "SPEED: " + std::to_string(speed),
         25,
         currentFont,
-        sf::Vector2f(200,50),
+        sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 4),
         [&]() -> void {
         });
@@ -106,23 +105,22 @@ auto main() -> int {
         wordsSpeedButton.setText("SPEED: " + std::to_string(speed));
     });
 
-    auto charSizesVecotor = std::vector<int>{15,25,35,45,55};
+    auto charSizesVecotor = std::vector<int>{15, 25, 35, 45, 55};
     auto charSizesIndex = 0;
 
     auto charSizeButton = Button(
         "TEXT SIZE: " + std::to_string(randomWords::charSize),
         25,
         currentFont,
-        sf::Vector2f(200,50),
+        sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
         [&]()-> void {
-
         });
 
     charSizeButton.setNewFunction([&]() {
-       randomWords::setRandomwordsSize(charSizesVecotor[charSizesIndex]);
-       charSizesIndex = (charSizesIndex + 1) % charSizesVecotor.size();
-       charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
+        randomWords::setRandomwordsSize(charSizesVecotor[charSizesIndex]);
+        charSizesIndex = (charSizesIndex + 1) % charSizesVecotor.size();
+        charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
     });
 
     buttons.emplace_back(&startButton);
@@ -168,11 +166,29 @@ auto main() -> int {
 
     auto generatedWords = std::vector<sf::Text>();
     auto vec = randomWords::wordsFromFile("../words.txt");
+    auto input = std::string();
+
+    auto const textEntered =
+            [&](sf::Event::TextEntered const &e) {
+        if (e.unicode < 128) {
+            auto charEntered = static_cast<char>(e.unicode);
+
+            if (charEntered == '\n') {
+                for (auto iterator = generatedWords.begin(); iterator != generatedWords.end(); ++iterator) {
+                    if (input == iterator->getString()) {
+                        iterator = generatedWords.erase(iterator);
+                    }
+                }
+                input.clear();
+            } else {
+                input += charEntered;
+            }
+        }
+    };
+
     auto clock = sf::Clock();
-
     while (window.isOpen()) {
-
-        window.handleEvents(onClose, ButtonClick, ButtonHovered);
+        window.handleEvents(onClose, ButtonClick, ButtonHovered, textEntered);
 
         if (!clearWindow && !optionWindow) {
             //poczatkowe okienko
@@ -186,9 +202,7 @@ auto main() -> int {
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
-
         } else if (!clearWindow && optionWindow) {
-
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(false);
@@ -200,7 +214,6 @@ auto main() -> int {
             window.draw(charSizeButton);
             backButton.setVisibility(true);
             window.draw(backButton);
-
         } else {
             //okienko po startbutton
             window.clear(sf::Color::Black);
@@ -217,7 +230,7 @@ auto main() -> int {
             }
 
             for (auto &word: generatedWords) {
-                word.move({1,0});
+                word.move({1, 0});
                 window.draw(word);
             }
         }
