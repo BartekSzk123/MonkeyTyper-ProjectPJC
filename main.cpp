@@ -123,12 +123,25 @@ auto main() -> int {
         charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
     });
 
+    auto score = 0;
+    auto wordsCounter = 0;
+
+    auto scoreBar = Button(
+        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter),
+        20,
+        currentFont,
+        sf::Vector2f(800, 30),
+        sf::Vector2f(window.getSize().x /2 ,585),
+        [&]()-> void {
+        });
+
     buttons.emplace_back(&startButton);
     buttons.emplace_back(&optionButton);
     buttons.emplace_back(&backButton);
     buttons.emplace_back(&fontButton);
     buttons.emplace_back(&wordsSpeedButton);
     buttons.emplace_back(&charSizeButton);
+    buttons.emplace_back(&scoreBar);
 
     //event zamykania
     auto const onClose = [&window](sf::Event::Closed const &) {
@@ -156,7 +169,7 @@ auto main() -> int {
         for (auto &b: buttons) {
             auto hoverd = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
 
-            if (hoverd) {
+            if (hoverd && b->isVisible) {
                 b->setColor({192, 192, 192});
             } else {
                 b->setColor(sf::Color::White);
@@ -176,7 +189,10 @@ auto main() -> int {
             if (charEntered == '\n') {
                 for (auto iterator = generatedWords.begin(); iterator != generatedWords.end(); ++iterator) {
                     if (input == iterator->getString()) {
+                        score += iterator->getString().getSize() * 2;
+                        wordsCounter++;
                         iterator = generatedWords.erase(iterator);
+                        scoreBar.setText("SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
                     }
                 }
                 input.clear();
@@ -223,6 +239,8 @@ auto main() -> int {
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
+            scoreBar.setVisibility(false);
+            window.draw(scoreBar);
 
             if (clock.getElapsedTime().asSeconds() > 1) {
                 generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont));
