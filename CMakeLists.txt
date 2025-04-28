@@ -20,6 +20,7 @@ add_executable(MONKEY3 main.cpp
         button.hpp
         randomWords.hpp
         randomWords.cpp
+        gameStatus.hpp
 )
 
 target_link_libraries(MONKEY3 PRIVATE SFML::Graphics)

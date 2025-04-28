@@ -19,7 +19,9 @@ struct Button : sf::Drawable {
 
     void setVisibility(bool newVisibility);
 
-    void setColor(const sf::Color &newColor);
+    void setShapeColor(const sf::Color &newColor);
+
+    void setTextColor(const sf::Color &newColor);
 
     void setText(const std::string &newText);
 

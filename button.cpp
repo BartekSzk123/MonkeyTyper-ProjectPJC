@@ -34,8 +34,12 @@ void Button::setFont(const sf::Font &newFont) {
     text.setFont(font);
 }
 
-void Button::setColor(const sf::Color &newColor) {
+void Button::setShapeColor(const sf::Color &newColor) {
     shape.setFillColor(newColor);
+}
+
+void Button::setTextColor(const sf::Color &newColor) {
+    text.setFillColor(newColor);
 }
 
 void Button::setVisibility(bool newVisibility) {
