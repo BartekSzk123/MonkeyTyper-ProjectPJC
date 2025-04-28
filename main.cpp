@@ -19,7 +19,7 @@ auto main() -> int {
     auto currentFont = sf::Font("../Arial.ttf");
     auto Title = sf::Text(currentFont, "MonkeyTyper", 40);
     sf::FloatRect textBounds = Title.getLocalBounds();
-    Title.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.0f, 0));
+    Title.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2, 0));
     Title.setPosition(sf::Vector2f(window.getSize().x / 2, 0));
     Title.setFillColor(sf::Color::White);
 
@@ -105,7 +105,7 @@ auto main() -> int {
         wordsSpeedButton.setText("SPEED: " + std::to_string(speed));
     });
 
-    auto charSizesVecotor = std::vector<int>{15, 25, 35, 45, 55};
+    auto charSizesVecotor = std::vector<int>{20, 25, 30, 35, 40};
     auto charSizesIndex = 0;
 
     auto charSizeButton = Button(
@@ -127,11 +127,11 @@ auto main() -> int {
     auto wordsCounter = 0;
 
     auto scoreBar = Button(
-        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter),
+    "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter),
         20,
         currentFont,
         sf::Vector2f(800, 30),
-        sf::Vector2f(window.getSize().x /2 ,585),
+        sf::Vector2f(window.getSize().x / 2, 585),
         [&]()-> void {
         });
 
@@ -192,12 +192,21 @@ auto main() -> int {
                         score += iterator->getString().getSize() * 2;
                         wordsCounter++;
                         iterator = generatedWords.erase(iterator);
-                        scoreBar.setText("SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+                        scoreBar.setText(
+                            "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
                     }
                 }
                 input.clear();
+            } else if (charEntered == '\b' && !input.empty()) {
+                input.pop_back();
+                scoreBar.setText(
+                    "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter) + input);
             } else {
-                input += charEntered;
+                if (!(charEntered == '\b')) {
+                    input.push_back(charEntered);
+                    scoreBar.setText(
+                        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter) + input);
+                }
             }
         }
     };
