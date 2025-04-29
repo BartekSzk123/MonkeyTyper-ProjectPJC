@@ -10,8 +10,8 @@ struct Button : sf::Drawable {
     std::function<void()> click;
     bool isVisible = true;
 
-    Button(const std::string &chosenText,const int &charSize, const sf::Font &chosenFont,const sf::Vector2f &size, const sf::Vector2f &pos,
-           const std::function<void()> onClick);
+    Button(const std::string &chosenText,const int &charSize, const sf::Font &chosenFont,const sf::Vector2f &size,
+        const sf::Vector2f &pos, const std::function<void()> onClick);
 
     void checkClick(const sf::Vector2f &mousePos);
 

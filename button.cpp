@@ -1,8 +1,7 @@
 #include "Button.hpp"
 
 Button::Button(const std::string &chosenText, const int &charSize, const sf::Font &chosenFont, const sf::Vector2f &size,
-               const sf::Vector2f &pos,
-               const std::function<void()> onClick)
+               const sf::Vector2f &pos, const std::function<void()> onClick)
     : font(chosenFont), text(font, chosenText, charSize), shape(sf::Vector2f(size)), click(onClick) {
     text.setFillColor(sf::Color::Black);
     text.setOrigin(sf::Vector2f(

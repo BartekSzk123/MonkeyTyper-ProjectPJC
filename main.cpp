@@ -1,4 +1,3 @@
-#include <iostream>
 #include <sfML/Graphics.hpp>
 #include <string>
 #include "Button.hpp"
@@ -18,21 +17,18 @@ auto main() -> int {
 
     auto currentFont = sf::Font("../Arial.ttf");
     auto Title = sf::Text(currentFont, "MonkeyTyper", 40);
-    sf::FloatRect textBounds = Title.getLocalBounds();
-    Title.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2, 0));
+    auto titleBounds = Title.getLocalBounds();
+    Title.setOrigin(sf::Vector2f(titleBounds.position.x + titleBounds.size.x / 2, 0));
     Title.setPosition(sf::Vector2f(window.getSize().x / 2, 0));
     Title.setFillColor(sf::Color::White);
 
     auto gameOver = sf::Text(currentFont, "GAME OVER!!!", 65);
-    sf::FloatRect gameOverBounds = gameOver.getLocalBounds();
+    auto gameOverBounds = gameOver.getLocalBounds();
     gameOver.setOrigin(sf::Vector2f(gameOverBounds.position.x + gameOverBounds.size.x / 2,
                                     gameOverBounds.position.y + gameOverBounds.size.y / 2));
     gameOver.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
     gameOver.setFillColor(sf::Color::Red);
 
-
-    auto clearWindow = false;
-    auto optionWindow = false;
     auto fontsPaths = std::vector<std::string>{
         "../Times New Roman.ttf",
         "../Courier.ttf",
@@ -101,7 +97,7 @@ auto main() -> int {
         [&]() -> void {
         });
 
-    wordsSpeedButton.setNewFunction([&]() {
+    wordsSpeedButton.setNewFunction([&]() -> void {
         speed = speedVector[speedIndex];
         speedIndex = (speedIndex + 1) % speedVector.size();
         window.setFramerateLimit(speed);
@@ -109,7 +105,7 @@ auto main() -> int {
     });
 
     auto charSizesVector = std::vector<int>{20, 25, 30, 35, 40};
-    auto charSizesIndex = 0;
+    auto charSizesIndex = 2;
 
     auto charSizeButton = Button(
         "TEXT SIZE: " + std::to_string(randomWords::charSize),
@@ -120,7 +116,7 @@ auto main() -> int {
         [&]()-> void {
         });
 
-    charSizeButton.setNewFunction([&]() {
+    charSizeButton.setNewFunction([&]() -> void {
         randomWords::setRandomwordsSize(charSizesVector[charSizesIndex]);
         charSizesIndex = (charSizesIndex + 1) % charSizesVector.size();
         charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
@@ -133,8 +129,17 @@ auto main() -> int {
         "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter),
         20,
         currentFont,
-        sf::Vector2f(800, 30),
-        sf::Vector2f(window.getSize().x / 2, 585),
+        sf::Vector2f(600, 30),
+        sf::Vector2f(500, 585),
+        [&]()-> void {
+        });
+
+    auto currentTyping = Button(
+        "INPUT:  ",
+        20,
+        currentFont,
+        sf::Vector2f(200, 30),
+        sf::Vector2f(100, 585),
         [&]()-> void {
         });
 
@@ -158,6 +163,7 @@ auto main() -> int {
     buttons.emplace_back(&wordsSpeedButton);
     buttons.emplace_back(&charSizeButton);
     buttons.emplace_back(&scoreBar);
+    buttons.emplace_back(&currentTyping);
     buttons.emplace_back(&livesBar);
 
     auto const onClose = [&window](sf::Event::Closed const &) {
@@ -212,15 +218,16 @@ auto main() -> int {
                     }
                 }
                 input.clear();
+                currentTyping.setText("INPUT: ");
             } else if (charEntered == '\b' && !input.empty()) {
                 input.pop_back();
-                scoreBar.setText(
-                    "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+                currentTyping.setText(
+                    "INPUT:  " + input);
             } else {
                 if (!(charEntered == '\b')) {
                     input.push_back(charEntered);
-                    scoreBar.setText(
-                        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+                    currentTyping.setText(
+                    "INPUT:  " + input);
                 }
             }
         }
@@ -263,6 +270,8 @@ auto main() -> int {
             window.draw(backButton);
             scoreBar.setVisibility(false);
             window.draw(scoreBar);
+            currentTyping.setVisibility(false);
+            window.draw(currentTyping);
             livesBar.setVisibility(false);
             window.draw(livesBar);
 
@@ -277,7 +286,7 @@ auto main() -> int {
                     strikesCounter++;
                     strikes += "X";
 
-                    livesBar.setText(strikes);
+                    livesBar.setText("  " + strikes);
                     if (strikesCounter >= 5) {
                         status = GameStatus::GameOver;
                     }
@@ -291,6 +300,9 @@ auto main() -> int {
             window.draw(gameOver);
             backButton.setVisibility(true);
             window.draw(backButton);
+            window.draw(scoreBar);
+            window.draw(currentTyping);
+            window.draw(livesBar);
         }
         window.display();
     }
