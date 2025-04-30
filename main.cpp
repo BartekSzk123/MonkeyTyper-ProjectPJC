@@ -1,13 +1,15 @@
-#include <sfML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <string>
 #include "Button.hpp"
 #include "randomWords.hpp"
 #include "gameStatus.hpp"
+#include "SFML/Audio/Music.hpp"
 
 auto main() -> int {
     auto window = sf::RenderWindow(
         sf::VideoMode({800, 600}), "Monkey",
-        sf::Style::Default, sf::State::Windowed,
+        sf::Style::Titlebar | sf::Style::Close, sf::State::Windowed,
         sf::ContextSettings{.antiAliasingLevel = 8}
     );
 
@@ -35,6 +37,21 @@ auto main() -> int {
         "../Arial.ttf"
     };
     auto fontIndex = 0;
+
+    auto treeTexture = sf::Texture();
+    if (!treeTexture.loadFromFile("../tree.png")) {
+        return -1;
+    }
+
+    auto tree = sf::Sprite(treeTexture);
+    tree.setPosition(sf::Vector2f(0, 40));
+
+    auto monkeyTexture = sf::Texture();
+    if (!monkeyTexture.loadFromFile("../monke.png")) {
+        return -1;
+    }
+    auto monkey = sf::Sprite(monkeyTexture);
+    monkey.setPosition(sf::Vector2f(550, 0));
 
     auto buttons = std::vector<Button *>();
 
@@ -204,7 +221,7 @@ auto main() -> int {
 
     auto const textEntered =
             [&](sf::Event::TextEntered const &e) {
-        if (e.unicode < 128) {
+        if (e.unicode < 128 && status == GameStatus::GameStart) {
             auto charEntered = static_cast<char>(e.unicode);
 
             if (charEntered == '\n') {
@@ -233,6 +250,14 @@ auto main() -> int {
         }
     };
 
+
+    auto music = sf::Music();
+    if (!music.openFromFile("../01-theme.ogg")) {
+        return -1;
+    }
+    music.setLooping(true);
+    music.play();
+
     auto clock = sf::Clock();
     while (window.isOpen()) {
         window.handleEvents(onClose, ButtonClick, ButtonHovered, textEntered);
@@ -248,6 +273,8 @@ auto main() -> int {
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
+            window.draw(tree);
+            window.draw(monkey);
         } else if (status == GameStatus::OptionsMenu) {
             window.clear(sf::Color::Black);
             window.draw(Title);

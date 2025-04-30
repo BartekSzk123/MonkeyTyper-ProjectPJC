@@ -21,4 +21,4 @@ add_executable(MONKEY3 main.cpp
         gameStatus.hpp
 )
 
-target_link_libraries(MONKEY3 PRIVATE SFML::Graphics)
+target_link_libraries(MONKEY3 PRIVATE SFML::Graphics SFML::Audio)

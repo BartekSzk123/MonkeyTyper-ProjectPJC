@@ -27,7 +27,7 @@ struct Button : sf::Drawable {
 
     void setSizeOfShape(const int &newSizeX,const int &newSizeY);
 
-    void setNewFunction(const std::function<void()> newOnClick);
+    void setNewFunction(const std::function<void()> &newOnClick);
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 };

@@ -53,7 +53,7 @@ void Button::setSizeOfShape(const int &newSizeX, const int &newSizeY) {
     shape.setSize(sf::Vector2f(newSizeX, newSizeY));
 }
 
-void Button::setNewFunction(const std::function<void()> newOnClick) {
+void Button::setNewFunction(const std::function<void()> &newOnClick) {
     click = newOnClick;
 }
 
