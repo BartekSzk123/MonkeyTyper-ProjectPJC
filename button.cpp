@@ -10,7 +10,7 @@ Button::Button(const std::string &chosenText, const int &charSize, const sf::Fon
     );
     text.setPosition(pos);
 
-    shape.setFillColor(sf::Color::White);
+    shape.setFillColor({120,72,35});
     shape.setOrigin(sf::Vector2f(
             shape.getLocalBounds().position.x + shape.getLocalBounds().size.x / 2,
             shape.getLocalBounds().position.y + shape.getLocalBounds().size.y / 2)

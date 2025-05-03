@@ -23,7 +23,7 @@ auto randomWords::wordsGenerator(const std::vector<std::string> &words, const sf
 
     auto word = words[index];
     auto x = 5;
-    auto y = std::rand() % 500;
+    auto y = (std::rand() % 400) + 100;
 
     auto generatedWord = sf::Text(chosenFont, word, charSize);
     generatedWord.setFillColor(sf::Color::White);

@@ -19,6 +19,8 @@ add_executable(MONKEY3 main.cpp
         randomWords.hpp
         randomWords.cpp
         gameStatus.hpp
+        BestScores.hpp
+        bestScores.cpp
 )
 
 target_link_libraries(MONKEY3 PRIVATE SFML::Graphics SFML::Audio)
