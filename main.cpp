@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <string>
-
 #include "BestScores.hpp"
 #include "Button.hpp"
 #include "randomWords.hpp"
@@ -72,7 +71,7 @@ auto main() -> int {
         sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 4),
         [&]()-> void {
-            status = GameStatus::GameStart;
+            status = GameStatus::GamePreparation;
         });
 
 
@@ -126,7 +125,7 @@ auto main() -> int {
             auto pos = 150;
 
             if (results.empty()) {
-                status = GameStatus::GameResultsMenu;
+                status = GameStatus::ResultsMenu;
                 return;
             }
 
@@ -144,7 +143,7 @@ auto main() -> int {
                 pos += 50;
             }
 
-            status = GameStatus::GameResultsMenu;
+            status = GameStatus::ResultsMenu;
         });
 
     auto speedVector = std::vector<int>{60, 120, 180, 240};
@@ -316,10 +315,20 @@ auto main() -> int {
         livesBar.setText(" STRIKES");
         currentTyping.setText("INPUT:  ");
         gamePrepText.setString("3");
+        scoreBar.setText(
+        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+
     };
-    startButton.setNewFunction([&]() -> void {
-        resetGame();
-        status = GameStatus::GamePreparation;
+
+    auto newGame = true;
+
+    startButton.setNewFunction([&]() -> void  {
+        if (newGame) {
+            resetGame();
+            status = GameStatus::GamePreparation;
+        }else {
+            status = GameStatus::GameStart;
+        }
     });
 
     auto music = sf::Music();
@@ -361,7 +370,7 @@ auto main() -> int {
             window.draw(charSizeButton);
             backButton.setVisibility(true);
             window.draw(backButton);
-        } else if (status == GameStatus::GameResultsMenu) {
+        } else if (status == GameStatus::ResultsMenu) {
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(false);
@@ -394,6 +403,7 @@ auto main() -> int {
             }
             window.draw(gamePrepText);
         } else if (status == GameStatus::GameStart) {
+            newGame = false;
             window.clear(sf::Color::Black);
             window.draw(Title);
             startButton.setVisibility(false);
@@ -441,6 +451,7 @@ auto main() -> int {
             window.draw(scoreBar);
             window.draw(currentTyping);
             window.draw(livesBar);
+            newGame = true;
         }
         window.display();
     }

@@ -1,7 +1,6 @@
 #include "randomWords.hpp"
 #include <fstream>
-#include <cstdlib>
-#include <ctime>
+#include <__random/random_device.h>
 
 int randomWords::charSize = 25;
 
@@ -18,12 +17,15 @@ auto randomWords::wordsFromFile(const std::string &filePath) -> std::vector<std:
 }
 
 auto randomWords::wordsGenerator(const std::vector<std::string> &words, const sf::Font &chosenFont) -> sf::Text {
-    std::srand(std::time(0));
-    auto index = std::rand() % words.size();
+    std::random_device rd;
+    std::uniform_int_distribution<int> wordDist(0, words.size() - 1);
+    std::uniform_int_distribution<int> posDist(100, 499);
+
+    auto index = wordDist(rd);
 
     auto word = words[index];
     auto x = 5;
-    auto y = (std::rand() % 400) + 100;
+    auto y = posDist(rd);
 
     auto generatedWord = sf::Text(chosenFont, word, charSize);
     generatedWord.setFillColor(sf::Color::White);

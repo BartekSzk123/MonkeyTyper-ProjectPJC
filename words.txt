@@ -92,8 +92,8 @@ mother
 uncle
 aunt
 cousin
-grandfather
-grandmother
+grandpa
+grandma
 king
 queen
 castle
@@ -131,7 +131,7 @@ pepper
 ketchup
 butter
 jam
-breakfast
+break
 lunch
 dinner
 snack

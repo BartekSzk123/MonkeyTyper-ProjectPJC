@@ -3,7 +3,7 @@
 enum class GameStatus {
     MainMenu,
     OptionsMenu,
-    GameResultsMenu,
+    ResultsMenu,
     GamePreparation,
     GameStart,
     GameOver,

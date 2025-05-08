@@ -3,7 +3,6 @@
 #include <ranges>
 #include <algorithm>
 
-
 auto ScoresUtils::saveScore(const BestScores &bestScores, const std::string &fileName) -> void {
     auto file = std::fstream(fileName, std::fstream::out | std::fstream::app);
      file << bestScores.score << " " <<bestScores.typedWords << "\n";
