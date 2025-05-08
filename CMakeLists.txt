@@ -21,6 +21,8 @@ add_executable(MONKEY3 main.cpp
         gameStatus.hpp
         BestScores.hpp
         bestScores.cpp
+        events.hpp
+        events.cpp
 )
 
 target_link_libraries(MONKEY3 PRIVATE SFML::Graphics SFML::Audio)

@@ -5,6 +5,7 @@
 #include "Button.hpp"
 #include "randomWords.hpp"
 #include "gameStatus.hpp"
+#include "events.hpp"
 #include "SFML/Audio/Music.hpp"
 
 auto main() -> int {
@@ -110,7 +111,6 @@ auto main() -> int {
         [&]() {
             status = GameStatus::MainMenu;
         });
-
 
     auto highestResults = std::vector<sf::Text>();
     auto resultsButton = Button(
@@ -218,6 +218,15 @@ auto main() -> int {
         });
     livesBar.setTextColor(sf::Color::Red);
 
+    auto shortCutsBar = Button(
+        "CHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S) | CHANGE WORDS SIZE(CTRL+C)",
+        15,
+        currentFont,
+        sf::Vector2f(800, 50),
+        sf::Vector2f(400, 575),
+        [&]()-> void {
+        });
+
     buttons.emplace_back(&startButton);
     buttons.emplace_back(&optionButton);
     buttons.emplace_back(&resultsButton);
@@ -228,73 +237,11 @@ auto main() -> int {
     buttons.emplace_back(&scoreBar);
     buttons.emplace_back(&currentTyping);
     buttons.emplace_back(&livesBar);
-
-    auto const onClose = [&window](sf::Event::Closed const &) {
-        window.close();
-    };
-
-    auto const ButtonClick =
-            [&buttons]
-    (sf::Event::MouseButtonPressed const &e) {
-        if (e.button == sf::Mouse::Button::Left) {
-            for (auto &b: buttons) {
-                auto clicked = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
-
-                if (clicked) {
-                    b->checkClick(sf::Vector2f(e.position.x, e.position.y));
-                }
-            }
-        }
-    };
-
-    auto const ButtonHovered =
-            [&buttons]
-    (sf::Event::MouseMoved const &e) {
-        for (auto &b: buttons) {
-            auto hovered = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(e.position));
-
-            if (hovered && b->isVisible) {
-                b->setShapeColor({205, 133, 63});
-            } else {
-                b->setShapeColor({97, 39, 24});
-            }
-        }
-    };
+    buttons.emplace_back(&shortCutsBar);
 
     auto generatedWords = std::vector<sf::Text>();
     auto vec = randomWords::wordsFromFile("../words.txt");
     auto input = std::string();
-
-    auto const textEntered =
-            [&](sf::Event::TextEntered const &e) {
-        if (e.unicode < 128 && status == GameStatus::GameStart) {
-            auto charEntered = static_cast<char>(e.unicode);
-
-            if (charEntered == '\n') {
-                for (auto iterator = generatedWords.begin(); iterator != generatedWords.end(); ++iterator) {
-                    if (input == iterator->getString()) {
-                        score += iterator->getString().getSize() * 2;
-                        wordsCounter++;
-                        iterator = generatedWords.erase(iterator);
-                        scoreBar.setText(
-                            "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
-                    }
-                }
-                input.clear();
-                currentTyping.setText("INPUT: ");
-            } else if (charEntered == '\b' && !input.empty()) {
-                input.pop_back();
-                currentTyping.setText(
-                    "INPUT:  " + input);
-            } else {
-                if (!(charEntered == '\b')) {
-                    input.push_back(charEntered);
-                    currentTyping.setText(
-                        "INPUT:  " + input);
-                }
-            }
-        }
-    };
 
     auto gamePrepText = sf::Text(currentFont, "3", 100);
     auto gamePrepBounds = gamePrepText.getLocalBounds();
@@ -316,17 +263,16 @@ auto main() -> int {
         currentTyping.setText("INPUT:  ");
         gamePrepText.setString("3");
         scoreBar.setText(
-        "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
-
+            "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
     };
 
     auto newGame = true;
 
-    startButton.setNewFunction([&]() -> void  {
+    startButton.setNewFunction([&]() -> void {
         if (newGame) {
             resetGame();
             status = GameStatus::GamePreparation;
-        }else {
+        } else {
             status = GameStatus::GameStart;
         }
     });
@@ -340,7 +286,29 @@ auto main() -> int {
 
     auto clock = sf::Clock();
     while (window.isOpen()) {
-        window.handleEvents(onClose, ButtonClick, ButtonHovered, textEntered);
+        window.handleEvents(
+
+            [&](sf::Event::Closed const &event) {
+                onClose(event, window);
+            },
+
+            [&](sf::Event::MouseButtonPressed const &event) {
+                mouseClick(event, buttons);
+            },
+
+            [&](sf::Event::MouseMoved const &event) {
+                mouseHover(event, buttons);
+            },
+
+            [&](sf::Event::TextEntered const &event) {
+                textEntered(event, input, generatedWords, score, wordsCounter, scoreBar, currentTyping, status);
+            },
+
+            [&](sf::Event::KeyPressed const &event) {
+                keyPressed(event,wordsSpeedButton,charSizeButton,fontButton);
+            }
+
+        );
 
         if (status == GameStatus::MainMenu) {
             window.clear(sf::Color::Black);
@@ -355,6 +323,7 @@ auto main() -> int {
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
+            shortCutsBar.setVisibility(false);
             window.draw(tree);
             window.draw(monkey);
         } else if (status == GameStatus::OptionsMenu) {
@@ -370,6 +339,7 @@ auto main() -> int {
             window.draw(charSizeButton);
             backButton.setVisibility(true);
             window.draw(backButton);
+            window.draw(shortCutsBar);
         } else if (status == GameStatus::ResultsMenu) {
             window.clear(sf::Color::Black);
             window.draw(Title);
