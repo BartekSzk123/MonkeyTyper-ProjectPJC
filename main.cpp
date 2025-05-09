@@ -16,16 +16,15 @@ auto main() -> int {
     );
 
     auto status = GameStatus::MainMenu;
-    auto speed = 120;
-    window.setFramerateLimit(speed);
+
+    auto logoTexture =sf::Texture();
+    if (!logoTexture.loadFromFile("../logo.png")) {
+        return -1;
+    }
+    auto logo = sf::Sprite(logoTexture);
+    logo.setPosition(sf::Vector2f(200, -40));
 
     auto currentFont = sf::Font("../Arial.ttf");
-    auto Title = sf::Text(currentFont, "MonkeyTyper", 40);
-    auto titleBounds = Title.getLocalBounds();
-    Title.setOrigin(sf::Vector2f(titleBounds.position.x + titleBounds.size.x / 2, 0));
-    Title.setPosition(sf::Vector2f(window.getSize().x / 2, 0));
-    Title.setFillColor(sf::Color::Yellow);
-
     auto gameOver = sf::Text(currentFont, "GAME OVER!!!", 65);
     auto gameOverBounds = gameOver.getLocalBounds();
     gameOver.setOrigin(sf::Vector2f(gameOverBounds.position.x + gameOverBounds.size.x / 2,
@@ -33,15 +32,10 @@ auto main() -> int {
     gameOver.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 4));
     gameOver.setFillColor(sf::Color::Red);
 
-    auto fontsPaths = std::vector<std::string>{
-        "../Times New Roman.ttf",
-        "../Courier.ttf",
-        "../Arial.ttf"
-    };
     auto fontIndex = 0;
 
     auto treeTexture = sf::Texture();
-    if (!treeTexture.loadFromFile("../tree.png")) {
+    if (!treeTexture.loadFromFile("../palm.png")) {
         return -1;
     }
 
@@ -49,14 +43,14 @@ auto main() -> int {
     tree.setPosition(sf::Vector2f(0, 40));
 
     auto monkeyTexture = sf::Texture();
-    if (!monkeyTexture.loadFromFile("../monke.png")) {
+    if (!monkeyTexture.loadFromFile("../monkey.png")) {
         return -1;
     }
     auto monkey = sf::Sprite(monkeyTexture);
     monkey.setPosition(sf::Vector2f(550, 0));
 
     auto monkeyKO = sf::Texture();
-    if (!monkeyKO.loadFromFile("../monkeKO.png")) {
+    if (!monkeyKO.loadFromFile("../monkeyBeng.png")) {
         return -1;
     }
 
@@ -86,6 +80,12 @@ auto main() -> int {
             status = GameStatus::OptionsMenu;
         }
     );
+
+    auto fontsPaths = std::vector<std::string>{
+        "../Times New Roman.ttf",
+        "../Courier.ttf",
+        "../Arial.ttf"
+    };
 
     auto fontButton = Button(
         "CHANGE FONT",
@@ -148,9 +148,11 @@ auto main() -> int {
 
     auto speedVector = std::vector<int>{60, 120, 180, 240};
     auto speedIndex = 0;
+    auto speed = 120;
+    window.setFramerateLimit(speed);
 
     auto wordsSpeedButton = Button(
-        "SPEED: " + std::to_string(speed),
+        " SPEED: " + std::to_string(speed),
         25,
         currentFont,
         sf::Vector2f(200, 50),
@@ -162,7 +164,7 @@ auto main() -> int {
         speed = speedVector[speedIndex];
         speedIndex = (speedIndex + 1) % speedVector.size();
         window.setFramerateLimit(speed);
-        wordsSpeedButton.setText("SPEED: " + std::to_string(speed));
+        wordsSpeedButton.setText(" SPEED: " + std::to_string(speed));
     });
 
     auto charSizesVector = std::vector<int>{20, 25, 30, 35, 40};
@@ -248,11 +250,11 @@ auto main() -> int {
     livesBar.setTextColor(sf::Color::Red);
 
     auto shortCutsBar = Button(
-        "CHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S) | "
+        "\t\t\tCHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S)\n"
         "CHANGE WORDS SIZE(CTRL+C) | TURN ON/OFF MUSIC(CTRL+M)",
-        12.5,
+        20,
         currentFont,
-        sf::Vector2f(800, 50),
+        sf::Vector2f(800, 75),
         sf::Vector2f(400, 575),
         [&]()-> void {
         });
@@ -298,7 +300,6 @@ auto main() -> int {
     };
 
     auto newGame = true;
-
     startButton.setNewFunction([&]() -> void {
         if (newGame) {
             resetGame();
@@ -336,7 +337,7 @@ auto main() -> int {
 
         if (status == GameStatus::MainMenu) {
             window.clear(sf::Color::Black);
-            window.draw(Title);
+            window.draw(logo);
             startButton.setVisibility(true);
             window.draw(startButton);
             optionButton.setVisibility(true);
@@ -352,7 +353,7 @@ auto main() -> int {
             window.draw(monkey);
         } else if (status == GameStatus::OptionsMenu) {
             window.clear(sf::Color::Black);
-            window.draw(Title);
+            window.draw(logo);
             startButton.setVisibility(false);
             resultsButton.setVisibility(false);
             optionButton.setVisibility(false);
@@ -370,7 +371,7 @@ auto main() -> int {
             window.draw(shortCutsBar);
         } else if (status == GameStatus::ResultsMenu) {
             window.clear(sf::Color::Black);
-            window.draw(Title);
+            window.draw(logo);
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
@@ -387,7 +388,7 @@ auto main() -> int {
             window.draw(monkey);
         } else if (status == GameStatus::GamePreparation) {
             window.clear(sf::Color::Black);
-            window.draw(Title);
+            window.draw(logo);
             if (clock.getElapsedTime().asSeconds() > 1) {
                 clock.restart();
                 --gamePrepCounter;
@@ -401,7 +402,7 @@ auto main() -> int {
         } else if (status == GameStatus::GameStart) {
             newGame = false;
             window.clear(sf::Color::Black);
-            window.draw(Title);
+            window.draw(logo);
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
@@ -438,7 +439,7 @@ auto main() -> int {
         } else if (status == GameStatus::GameOver) {
             window.clear(sf::Color::Black);
             window.draw(monkeyKOS);
-            window.draw(Title);
+            window.draw(logo);
             window.draw(gameOver);
             backButton.setVisibility(true);
             window.draw(backButton);
@@ -449,4 +450,5 @@ auto main() -> int {
         }
         window.display();
     }
+    return 0;
 }
