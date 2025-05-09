@@ -29,7 +29,8 @@ auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons
 }
 
 
-auto keyPressed(sf::Event::KeyPressed const& event, Button &wordsSpeedButton, Button &charSizeButton, Button &fontButton) -> void {
+auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButton, Button const& charSizeButton,
+    Button const& fontButton, Button const& musicButton) -> void {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         wordsSpeedButton.click();
@@ -43,6 +44,9 @@ auto keyPressed(sf::Event::KeyPressed const& event, Button &wordsSpeedButton, Bu
         fontButton.click();
     }
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
+        musicButton.click();
+    }
 }
 
 auto textEntered(sf::Event::TextEntered const &event, std::string& input,

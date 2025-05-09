@@ -173,7 +173,7 @@ auto main() -> int {
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
+        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 2.5),
         [&]()-> void {
         });
 
@@ -182,6 +182,35 @@ auto main() -> int {
         charSizesIndex = (charSizesIndex + 1) % charSizesVector.size();
         charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
     });
+
+    auto music = sf::Music();
+    if (!music.openFromFile("../01-theme.ogg")) {
+        return -1;
+    }
+    music.setLooping(true);
+    music.play();
+
+    auto musicOn = true;
+    auto musicButton = Button(
+        "MUSIC: ON",
+        25,
+        currentFont,
+        sf::Vector2f(200, 50),
+        sf::Vector2f(window.getSize().x / 3, window.getSize().y / 2.5),
+        [&]() -> void {
+        });
+
+    musicButton.setNewFunction([&]() -> void {
+        musicOn = !musicOn;
+            if (musicOn) {
+                music.play();
+                musicButton.setText("MUSIC: ON");
+            }else {
+                music.pause();
+                musicButton.setText("MUSIC: OFF");
+            }
+    });
+
 
     auto score = 0;
     auto wordsCounter = 0;
@@ -219,8 +248,9 @@ auto main() -> int {
     livesBar.setTextColor(sf::Color::Red);
 
     auto shortCutsBar = Button(
-        "CHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S) | CHANGE WORDS SIZE(CTRL+C)",
-        15,
+        "CHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S) | "
+        "CHANGE WORDS SIZE(CTRL+C) | TURN ON/OFF MUSIC(CTRL+M)",
+        12.5,
         currentFont,
         sf::Vector2f(800, 50),
         sf::Vector2f(400, 575),
@@ -234,6 +264,7 @@ auto main() -> int {
     buttons.emplace_back(&fontButton);
     buttons.emplace_back(&wordsSpeedButton);
     buttons.emplace_back(&charSizeButton);
+    buttons.emplace_back(&musicButton);
     buttons.emplace_back(&scoreBar);
     buttons.emplace_back(&currentTyping);
     buttons.emplace_back(&livesBar);
@@ -277,13 +308,6 @@ auto main() -> int {
         }
     });
 
-    auto music = sf::Music();
-    if (!music.openFromFile("../01-theme.ogg")) {
-        return -1;
-    }
-    music.setLooping(true);
-    music.play();
-
     auto clock = sf::Clock();
     while (window.isOpen()) {
         window.handleEvents(
@@ -305,7 +329,7 @@ auto main() -> int {
             },
 
             [&](sf::Event::KeyPressed const &event) {
-                keyPressed(event,wordsSpeedButton,charSizeButton,fontButton);
+                keyPressed(event, wordsSpeedButton, charSizeButton, fontButton, musicButton);
             }
 
         );
@@ -323,7 +347,7 @@ auto main() -> int {
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
-            shortCutsBar.setVisibility(false);
+            musicButton.setVisibility(false);
             window.draw(tree);
             window.draw(monkey);
         } else if (status == GameStatus::OptionsMenu) {
@@ -331,14 +355,18 @@ auto main() -> int {
             window.draw(Title);
             startButton.setVisibility(false);
             resultsButton.setVisibility(false);
+            optionButton.setVisibility(false);
             fontButton.setVisibility(true);
             window.draw(fontButton);
             wordsSpeedButton.setVisibility(true);
             window.draw(wordsSpeedButton);
             charSizeButton.setVisibility(true);
             window.draw(charSizeButton);
+            musicButton.setVisibility(true);
+            window.draw(musicButton);
             backButton.setVisibility(true);
             window.draw(backButton);
+            shortCutsBar.setVisibility(false);
             window.draw(shortCutsBar);
         } else if (status == GameStatus::ResultsMenu) {
             window.clear(sf::Color::Black);
@@ -346,8 +374,6 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
-            fontButton.setVisibility(false);
-            wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
 
@@ -379,8 +405,6 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
-            fontButton.setVisibility(false);
-            wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
             scoreBar.setVisibility(false);
