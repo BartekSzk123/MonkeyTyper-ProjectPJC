@@ -30,7 +30,7 @@ auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons
 
 
 auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButton, Button const& charSizeButton,
-    Button const& fontButton, Button const& musicButton) -> void {
+    Button const& fontButton, Button const& musicButton, Button const& soundsButton) -> void {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         wordsSpeedButton.click();
@@ -47,25 +47,47 @@ auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButt
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         musicButton.click();
     }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::G) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
+        soundsButton.click();
+    }
 }
 
 auto textEntered(sf::Event::TextEntered const &event, std::string& input,
     std::vector<sf::Text>& generatedWords, int& score, int& wordsCounter,
-    Button &scoreBar, Button &currentTyping, GameStatus status)->void {
+    Button &scoreBar, Button &currentTyping, GameStatus status,
+    sf::Sound &scoreSound, sf::Sound &wrongSound, bool const& soundsOn)->void {
 
     if (event.unicode < 128 && status == GameStatus::GameStart) {
         auto charEntered = static_cast<char>(event.unicode);
 
         if (charEntered == '\n') {
+
+            auto found = false;
+
             for (auto iterator = generatedWords.begin(); iterator != generatedWords.end(); ++iterator) {
                 if (input == iterator->getString()) {
+
                     score += iterator->getString().getSize() * 2;
+                    found = true;
                     wordsCounter++;
                     iterator = generatedWords.erase(iterator);
+
+                    if (soundsOn) {
+                        scoreSound.play();
+                    }
+
                     scoreBar.setText(
                         "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
                 }
             }
+
+            if (soundsOn) {
+                if (!found) {
+                    wrongSound.play();
+                }
+            }
+
             input.clear();
             currentTyping.setText("INPUT: ");
         } else if (charEntered == '\b' && !input.empty()) {

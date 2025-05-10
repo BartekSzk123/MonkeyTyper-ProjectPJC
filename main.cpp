@@ -156,7 +156,7 @@ auto main() -> int {
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 4),
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.85),
         [&]() -> void {
         });
 
@@ -167,22 +167,22 @@ auto main() -> int {
         wordsSpeedButton.setText(" SPEED: " + std::to_string(speed));
     });
 
-    auto charSizesVector = std::vector<int>{20, 25, 30, 35, 40};
+    auto charSizesVector = std::vector<int>{20, 25, 30, 35};
     auto charSizesIndex = 2;
 
     auto charSizeButton = Button(
-        "TEXT SIZE: " + std::to_string(randomWords::charSize),
+        "WORDS SIZE:" + std::to_string(randomWords::charSize),
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 2.5),
+        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 4),
         [&]()-> void {
         });
 
     charSizeButton.setNewFunction([&]() -> void {
         randomWords::setRandomwordsSize(charSizesVector[charSizesIndex]);
         charSizesIndex = (charSizesIndex + 1) % charSizesVector.size();
-        charSizeButton.setText("TEXT SIZE: " + std::to_string(randomWords::charSize));
+        charSizeButton.setText("WORDS SIZE:" + std::to_string(randomWords::charSize));
     });
 
     auto music = sf::Music();
@@ -191,6 +191,24 @@ auto main() -> int {
     }
     music.setLooping(true);
     music.play();
+
+    auto scoreSoundBuffer = sf::SoundBuffer();
+    if (!scoreSoundBuffer.loadFromFile("../scoreSound.wav")) {
+        return -1;
+    }
+    auto scoreSound = sf::Sound(scoreSoundBuffer);
+
+    auto wrongSoundBuffer = sf::SoundBuffer();
+    if (!wrongSoundBuffer.loadFromFile("../wrongSound.wav")) {
+        return -1;
+    }
+    auto wrongSound = sf::Sound(wrongSoundBuffer);
+
+    auto gameOverSoundBuffer = sf::SoundBuffer();
+    if (!gameOverSoundBuffer.loadFromFile("../gameOverSound.wav")) {
+        return -1;
+    }
+    auto gameOverSound = sf::Sound(gameOverSoundBuffer);
 
     auto musicOn = true;
     auto musicButton = Button(
@@ -210,6 +228,26 @@ auto main() -> int {
             }else {
                 music.pause();
                 musicButton.setText("MUSIC: OFF");
+            }
+    });
+
+
+    auto soundsOn = true;
+    auto soundsButton = Button(
+        "SOUND: ON",
+        25,
+        currentFont,
+        sf::Vector2f(200, 50),
+        sf::Vector2f(window.getSize().x / 1.5, window.getSize().y / 2.5),
+        [&]() -> void {
+        });
+
+    soundsButton.setNewFunction([&]() -> void {
+        soundsOn = !soundsOn;
+            if (soundsOn) {
+                soundsButton.setText("SOUND: ON");
+            }else {
+                soundsButton.setText("SOUND: OFF");
             }
     });
 
@@ -250,8 +288,8 @@ auto main() -> int {
     livesBar.setTextColor(sf::Color::Red);
 
     auto shortCutsBar = Button(
-        "\t\t\tCHANGE FONT(CTRL+F) | CHANGE SPEED(CTRL+S)\n"
-        "CHANGE WORDS SIZE(CTRL+C) | TURN ON/OFF MUSIC(CTRL+M)",
+        "FONT(CTRL+F) | SPEED(CTRL+S) | WORDS SIZE(CTRL+C)\n"
+        "\tON/OFF MUSIC(CTRL+M) | ON/OFF SOUND(CTRL+G)",
         20,
         currentFont,
         sf::Vector2f(800, 75),
@@ -271,6 +309,7 @@ auto main() -> int {
     buttons.emplace_back(&currentTyping);
     buttons.emplace_back(&livesBar);
     buttons.emplace_back(&shortCutsBar);
+    buttons.emplace_back(&soundsButton);
 
     auto generatedWords = std::vector<sf::Text>();
     auto vec = randomWords::wordsFromFile("../words.txt");
@@ -326,11 +365,12 @@ auto main() -> int {
             },
 
             [&](sf::Event::TextEntered const &event) {
-                textEntered(event, input, generatedWords, score, wordsCounter, scoreBar, currentTyping, status);
+                textEntered(event, input, generatedWords, score, wordsCounter, scoreBar, currentTyping,
+                    status, scoreSound, wrongSound, soundsOn);
             },
 
             [&](sf::Event::KeyPressed const &event) {
-                keyPressed(event, wordsSpeedButton, charSizeButton, fontButton, musicButton);
+                keyPressed(event, wordsSpeedButton, charSizeButton, fontButton, musicButton, soundsButton);
             }
 
         );
@@ -349,6 +389,7 @@ auto main() -> int {
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
             musicButton.setVisibility(false);
+            soundsButton.setVisibility(false);
             window.draw(tree);
             window.draw(monkey);
         } else if (status == GameStatus::OptionsMenu) {
@@ -365,6 +406,8 @@ auto main() -> int {
             window.draw(charSizeButton);
             musicButton.setVisibility(true);
             window.draw(musicButton);
+            soundsButton.setVisibility(true);
+            window.draw(soundsButton);
             backButton.setVisibility(true);
             window.draw(backButton);
             shortCutsBar.setVisibility(false);
@@ -430,6 +473,11 @@ auto main() -> int {
                     if (strikesCounter >= 5) {
                         auto result = BestScores(score, wordsCounter);
                         ScoresUtils::saveScore(result);
+
+                        if (soundsOn) {
+                            gameOverSound.play();
+                        }
+
                         status = GameStatus::GameOver;
                     }
                 }
