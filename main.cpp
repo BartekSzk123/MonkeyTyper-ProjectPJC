@@ -18,7 +18,7 @@ auto main() -> int {
     auto status = GameStatus::MainMenu;
 
     auto logoTexture =sf::Texture();
-    if (!logoTexture.loadFromFile("../logo.png")) {
+    if (!logoTexture.loadFromFile("../pngs/logo.png")) {
         return -1;
     }
     auto logo = sf::Sprite(logoTexture);
@@ -35,7 +35,7 @@ auto main() -> int {
     auto fontIndex = 0;
 
     auto treeTexture = sf::Texture();
-    if (!treeTexture.loadFromFile("../palm.png")) {
+    if (!treeTexture.loadFromFile("../pngs/palm.png")) {
         return -1;
     }
 
@@ -43,19 +43,32 @@ auto main() -> int {
     tree.setPosition(sf::Vector2f(0, 40));
 
     auto monkeyTexture = sf::Texture();
-    if (!monkeyTexture.loadFromFile("../monkey.png")) {
+    if (!monkeyTexture.loadFromFile("../pngs/monkey.png")) {
         return -1;
     }
     auto monkey = sf::Sprite(monkeyTexture);
     monkey.setPosition(sf::Vector2f(550, 0));
 
     auto monkeyKO = sf::Texture();
-    if (!monkeyKO.loadFromFile("../monkeyBeng.png")) {
+    if (!monkeyKO.loadFromFile("../pngs/monkeyBeng.png")) {
         return -1;
     }
-
     auto monkeyKOS = sf::Sprite(monkeyKO);
     monkeyKOS.setPosition(sf::Vector2f(200, 200));
+
+    auto monkeyOp1Texture = sf::Texture();
+    if (!monkeyOp1Texture.loadFromFile("../pngs/monkeyOptions1.png")) {
+        return -1;
+    }
+    auto monkeyOp1 = sf::Sprite(monkeyOp1Texture);
+    monkeyOp1.setPosition(sf::Vector2f(50, 350));
+
+    auto monkeyOp2Texture = sf::Texture();
+    if (!monkeyOp2Texture.loadFromFile("../pngs/monkeyOptions2.png")) {
+        return -1;
+    }
+    auto monkeyOp2 = sf::Sprite(monkeyOp2Texture);
+    monkeyOp2.setPosition(sf::Vector2f(550, 350));
 
     auto buttons = std::vector<Button *>();
 
@@ -121,6 +134,7 @@ auto main() -> int {
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.9),
         [&]() {
             auto results = ScoresUtils::loadScore();
+            highestResults.clear();
             auto rank = 1;
             auto pos = 150;
 
@@ -412,6 +426,8 @@ auto main() -> int {
             window.draw(backButton);
             shortCutsBar.setVisibility(false);
             window.draw(shortCutsBar);
+            window.draw(monkeyOp1);
+            window.draw(monkeyOp2);
         } else if (status == GameStatus::ResultsMenu) {
             window.clear(sf::Color::Black);
             window.draw(logo);
