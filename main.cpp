@@ -345,7 +345,7 @@ auto main() -> int {
     save.loadGame();
     newGame = save.newGame;
 
-    auto loadGameButton = Button(
+    auto resumeGameButton = Button(
         "RESUME",
         25,
         currentFont,
@@ -353,23 +353,20 @@ auto main() -> int {
         sf::Vector2f(window.getSize().x / 2, 225),
         [&]()-> void {
             if (!newGame) {
-
                 score = save.score;
                 wordsCounter = save.wordsCounter;
                 strikesCounter = save.strikesCounter;
                 speed = save.speed;
-                charSizesIndex = save.charSizeIndex;
-                fontIndex = save.fontIndex;
 
                 scoreBar.setText(
                     "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
-                if (!newGame) {
-                    for (auto i = 0; i < strikesCounter; i++) {
-                        strikes += "X";
-                    }
 
-                    livesBar.setText("  " + strikes);
+                for (auto i = 0; i < strikesCounter; i++) {
+                    strikes += "X";
                 }
+
+                livesBar.setText("  " + strikes);
+
 
                 status = GameStatus::GameStart;
             }
@@ -377,7 +374,14 @@ auto main() -> int {
 
     startButton.setNewFunction([&]() -> void {
         resetGame();
+        save.updateGameSave(score, wordsCounter, strikesCounter, speed, newGame);
         status = GameStatus::GamePreparation;
+    });
+
+    backButton.setNewFunction([&]() -> void {
+        save.updateGameSave(score, wordsCounter, strikesCounter, speed, newGame);
+        strikes = std::string();
+        status = GameStatus::MainMenu;
     });
 
     buttons.emplace_back(&startButton);
@@ -388,7 +392,7 @@ auto main() -> int {
     buttons.emplace_back(&wordsSpeedButton);
     buttons.emplace_back(&charSizeButton);
     buttons.emplace_back(&musicButton);
-    buttons.emplace_back(&loadGameButton);
+    buttons.emplace_back(&resumeGameButton);
     buttons.emplace_back(&scoreBar);
     buttons.emplace_back(&currentTyping);
     buttons.emplace_back(&livesBar);
@@ -402,8 +406,7 @@ auto main() -> int {
 
             [&](sf::Event::Closed const &event) {
 
-                save.updateGameSave(score, wordsCounter, strikesCounter, speed, charSizesIndex,
-                    fontIndex, newGame);
+                save.updateGameSave(score, wordsCounter, strikesCounter, speed, newGame);
                 onClose(event, window,save);
             },
 
@@ -435,8 +438,8 @@ auto main() -> int {
             window.draw(optionButton);
             resultsButton.setVisibility(true);
             window.draw(resultsButton);
-            loadGameButton.setVisibility(true);
-            window.draw(loadGameButton);
+            resumeGameButton.setVisibility(true);
+            window.draw(resumeGameButton);
             fontButton.setVisibility(false);
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
@@ -449,7 +452,7 @@ auto main() -> int {
             window.clear(sf::Color::Black);
             window.draw(logo);
             startButton.setVisibility(false);
-            loadGameButton.setVisibility(false);
+            resumeGameButton.setVisibility(false);
             resultsButton.setVisibility(false);
             optionButton.setVisibility(false);
             fontButton.setVisibility(true);
@@ -474,7 +477,7 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
-            loadGameButton.setVisibility(false);
+            resumeGameButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
 
@@ -506,7 +509,7 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
-            loadGameButton.setVisibility(false);
+            resumeGameButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
             scoreBar.setVisibility(false);
