@@ -10,7 +10,7 @@ struct BestScores {
 
 namespace ScoresUtils {
 
-    auto saveScore(const BestScores &bestScores, const std::string &fileName = "../bestScores.txt") -> void;
-    auto loadScore(const std::string &fileName = "../bestScores.txt") -> std::vector<BestScores>;
+    auto saveScore(BestScores const& bestScores, std::string const& fileName = "../bestScores.txt") -> void;
+    auto loadScore(std::string const& fileName = "../bestScores.txt") -> std::vector<BestScores>;
 
 }

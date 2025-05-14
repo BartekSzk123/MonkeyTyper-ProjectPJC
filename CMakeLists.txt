@@ -23,6 +23,8 @@ add_executable(MONKEY3 main.cpp
         bestScores.cpp
         events.hpp
         events.cpp
+        gameSave.hpp
+        gameSave.cpp
 )
 
 target_link_libraries(MONKEY3 PRIVATE SFML::Graphics SFML::Audio)

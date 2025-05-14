@@ -1,13 +1,14 @@
 #pragma once
 #include "Button.hpp"
 #include "gameStatus.hpp"
+#include "gameSave.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
 
 #include "SFML/Audio/Sound.hpp"
 
 
-auto onClose(sf::Event::Closed const& event, sf::RenderWindow& window) -> void;
+auto onClose(sf::Event::Closed const& event, sf::RenderWindow& window, gameSave &save) -> void;
 auto mouseClick(sf::Event::MouseButtonPressed const& event,std::vector<Button*> &buttons) -> void;
 auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons) -> void;
 auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButton, Button const& charSizeButton,

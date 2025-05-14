@@ -4,7 +4,7 @@
 
 int randomWords::charSize = 25;
 
-auto randomWords::wordsFromFile(const std::string &filePath) -> std::vector<std::string> {
+auto randomWords::wordsFromFile(std::string const& filePath) -> std::vector<std::string> {
     auto wordsVecotr = std::vector<std::string>();
     auto file = std::fstream(filePath);
     auto word = std::string();
@@ -16,7 +16,7 @@ auto randomWords::wordsFromFile(const std::string &filePath) -> std::vector<std:
     return wordsVecotr;
 }
 
-auto randomWords::wordsGenerator(const std::vector<std::string> &words, const sf::Font &chosenFont) -> sf::Text {
+auto randomWords::wordsGenerator(std::vector<std::string> const& words, sf::Font const& chosenFont) -> sf::Text {
     std::random_device rd;
     std::uniform_int_distribution<int> wordDist(0, words.size() - 1);
     std::uniform_int_distribution<int> posDist(100, 499);
@@ -33,6 +33,6 @@ auto randomWords::wordsGenerator(const std::vector<std::string> &words, const sf
     return generatedWord;
 }
 
-auto randomWords::setRandomwordsSize(const int &size) -> void {
+auto randomWords::setRandomwordsSize(int const& size) -> void {
     charSize = size;
 }

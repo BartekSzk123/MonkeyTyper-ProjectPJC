@@ -3,12 +3,12 @@
 #include <ranges>
 #include <algorithm>
 
-auto ScoresUtils::saveScore(const BestScores &bestScores, const std::string &fileName) -> void {
+auto ScoresUtils::saveScore(BestScores const& bestScores, std::string const& fileName) -> void {
     auto file = std::fstream(fileName, std::fstream::out | std::fstream::app);
      file << bestScores.score << " " <<bestScores.typedWords << "\n";
 }
 
-auto ScoresUtils::loadScore(const std::string &fileName) -> std::vector<BestScores> {
+auto ScoresUtils::loadScore(std::string const& fileName) -> std::vector<BestScores> {
      auto file = std::fstream(fileName);
      auto bestResults = std::vector<BestScores>();
      auto wordsCount =0;
@@ -18,7 +18,7 @@ auto ScoresUtils::loadScore(const std::string &fileName) -> std::vector<BestScor
         bestResults.emplace_back(BestScores(score, wordsCount));
      }
 
-     std::ranges::sort(bestResults, [](const BestScores &a, const BestScores &b){
+     std::ranges::sort(bestResults, [](BestScores const& a, BestScores const& b){
         return a.score > b.score;
      });
 

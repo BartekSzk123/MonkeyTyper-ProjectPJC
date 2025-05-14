@@ -1,6 +1,7 @@
 #include "events.hpp"
 
-auto onClose(sf::Event::Closed const& event, sf::RenderWindow& window) -> void {
+auto onClose(sf::Event::Closed const& event, sf::RenderWindow& window, gameSave &save) -> void {
+    save.saveGame();
     window.close();
 }
 
@@ -79,6 +80,7 @@ auto textEntered(sf::Event::TextEntered const &event, std::string& input,
 
                     scoreBar.setText(
                         "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+                    break;
                 }
             }
 

@@ -6,6 +6,7 @@
 #include "randomWords.hpp"
 #include "gameStatus.hpp"
 #include "events.hpp"
+#include "gameSave.hpp"
 #include "SFML/Audio/Music.hpp"
 
 auto main() -> int {
@@ -24,7 +25,7 @@ auto main() -> int {
     auto logo = sf::Sprite(logoTexture);
     logo.setPosition(sf::Vector2f(200, -40));
 
-    auto currentFont = sf::Font("../Arial.ttf");
+    auto currentFont = sf::Font("../fonts/Arial.ttf");
     auto gameOver = sf::Text(currentFont, "GAME OVER!!!", 65);
     auto gameOverBounds = gameOver.getLocalBounds();
     gameOver.setOrigin(sf::Vector2f(gameOverBounds.position.x + gameOverBounds.size.x / 2,
@@ -73,11 +74,11 @@ auto main() -> int {
     auto buttons = std::vector<Button *>();
 
     auto startButton = Button(
-        "START",
+        "NEW GAME",
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 4),
+        sf::Vector2f(window.getSize().x / 2, 150),
         [&]()-> void {
             status = GameStatus::GamePreparation;
         });
@@ -88,16 +89,16 @@ auto main() -> int {
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2.5),
+        sf::Vector2f(window.getSize().x / 2, 300),
         [&]()-> void {
             status = GameStatus::OptionsMenu;
         }
     );
 
     auto fontsPaths = std::vector<std::string>{
-        "../Times New Roman.ttf",
-        "../Courier.ttf",
-        "../Arial.ttf"
+        "../fonts/Times New Roman.ttf",
+        "../fonts/Courier.ttf",
+        "../fonts/Arial.ttf"
     };
 
     auto fontButton = Button(
@@ -131,7 +132,7 @@ auto main() -> int {
         25,
         currentFont,
         sf::Vector2f(200, 50),
-        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.9),
+        sf::Vector2f(window.getSize().x / 2, 375),
         [&]() {
             auto results = ScoresUtils::loadScore();
             highestResults.clear();
@@ -200,26 +201,26 @@ auto main() -> int {
     });
 
     auto music = sf::Music();
-    if (!music.openFromFile("../01-theme.ogg")) {
+    if (!music.openFromFile("../sound/01-theme.ogg")) {
         return -1;
     }
     music.setLooping(true);
     music.play();
 
     auto scoreSoundBuffer = sf::SoundBuffer();
-    if (!scoreSoundBuffer.loadFromFile("../scoreSound.wav")) {
+    if (!scoreSoundBuffer.loadFromFile("../sound/scoreSound.wav")) {
         return -1;
     }
     auto scoreSound = sf::Sound(scoreSoundBuffer);
 
     auto wrongSoundBuffer = sf::SoundBuffer();
-    if (!wrongSoundBuffer.loadFromFile("../wrongSound.wav")) {
+    if (!wrongSoundBuffer.loadFromFile("../sound/wrongSound.wav")) {
         return -1;
     }
     auto wrongSound = sf::Sound(wrongSoundBuffer);
 
     auto gameOverSoundBuffer = sf::SoundBuffer();
-    if (!gameOverSoundBuffer.loadFromFile("../gameOverSound.wav")) {
+    if (!gameOverSoundBuffer.loadFromFile("../sound/gameOverSound.wav")) {
         return -1;
     }
     auto gameOverSound = sf::Sound(gameOverSoundBuffer);
@@ -311,19 +312,6 @@ auto main() -> int {
         [&]()-> void {
         });
 
-    buttons.emplace_back(&startButton);
-    buttons.emplace_back(&optionButton);
-    buttons.emplace_back(&resultsButton);
-    buttons.emplace_back(&backButton);
-    buttons.emplace_back(&fontButton);
-    buttons.emplace_back(&wordsSpeedButton);
-    buttons.emplace_back(&charSizeButton);
-    buttons.emplace_back(&musicButton);
-    buttons.emplace_back(&scoreBar);
-    buttons.emplace_back(&currentTyping);
-    buttons.emplace_back(&livesBar);
-    buttons.emplace_back(&shortCutsBar);
-    buttons.emplace_back(&soundsButton);
 
     auto generatedWords = std::vector<sf::Text>();
     auto vec = randomWords::wordsFromFile("../words.txt");
@@ -353,21 +341,70 @@ auto main() -> int {
     };
 
     auto newGame = true;
+    auto save = gameSave();
+    save.loadGame();
+    newGame = save.newGame;
+
+    auto loadGameButton = Button(
+        "RESUME",
+        25,
+        currentFont,
+        sf::Vector2f(200, 50),
+        sf::Vector2f(window.getSize().x / 2, 225),
+        [&]()-> void {
+            if (!newGame) {
+
+                score = save.score;
+                wordsCounter = save.wordsCounter;
+                strikesCounter = save.strikesCounter;
+                speed = save.speed;
+                charSizesIndex = save.charSizeIndex;
+                fontIndex = save.fontIndex;
+
+                scoreBar.setText(
+                    "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+                if (!newGame) {
+                    for (auto i = 0; i < strikesCounter; i++) {
+                        strikes += "X";
+                    }
+
+                    livesBar.setText("  " + strikes);
+                }
+
+                status = GameStatus::GameStart;
+            }
+        });
+
     startButton.setNewFunction([&]() -> void {
-        if (newGame) {
-            resetGame();
-            status = GameStatus::GamePreparation;
-        } else {
-            status = GameStatus::GameStart;
-        }
+        resetGame();
+        status = GameStatus::GamePreparation;
     });
+
+    buttons.emplace_back(&startButton);
+    buttons.emplace_back(&optionButton);
+    buttons.emplace_back(&resultsButton);
+    buttons.emplace_back(&backButton);
+    buttons.emplace_back(&fontButton);
+    buttons.emplace_back(&wordsSpeedButton);
+    buttons.emplace_back(&charSizeButton);
+    buttons.emplace_back(&musicButton);
+    buttons.emplace_back(&loadGameButton);
+    buttons.emplace_back(&scoreBar);
+    buttons.emplace_back(&currentTyping);
+    buttons.emplace_back(&livesBar);
+    buttons.emplace_back(&shortCutsBar);
+    buttons.emplace_back(&soundsButton);
+
 
     auto clock = sf::Clock();
     while (window.isOpen()) {
         window.handleEvents(
 
             [&](sf::Event::Closed const &event) {
-                onClose(event, window);
+
+                save.updateGameSave(score, wordsCounter, strikesCounter, speed, charSizesIndex,
+                    fontIndex, newGame);
+                onClose(event, window,save);
             },
 
             [&](sf::Event::MouseButtonPressed const &event) {
@@ -398,6 +435,8 @@ auto main() -> int {
             window.draw(optionButton);
             resultsButton.setVisibility(true);
             window.draw(resultsButton);
+            loadGameButton.setVisibility(true);
+            window.draw(loadGameButton);
             fontButton.setVisibility(false);
             wordsSpeedButton.setVisibility(false);
             backButton.setVisibility(false);
@@ -410,6 +449,7 @@ auto main() -> int {
             window.clear(sf::Color::Black);
             window.draw(logo);
             startButton.setVisibility(false);
+            loadGameButton.setVisibility(false);
             resultsButton.setVisibility(false);
             optionButton.setVisibility(false);
             fontButton.setVisibility(true);
@@ -434,11 +474,12 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
+            loadGameButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
 
             if (!highestResults.empty()) {
-                for (auto result: highestResults) {
+                for (auto const& result: highestResults) {
                     window.draw(result);
                 }
             }
@@ -465,6 +506,7 @@ auto main() -> int {
             startButton.setVisibility(false);
             optionButton.setVisibility(false);
             resultsButton.setVisibility(false);
+            loadGameButton.setVisibility(false);
             backButton.setVisibility(true);
             window.draw(backButton);
             scoreBar.setVisibility(false);
@@ -474,7 +516,7 @@ auto main() -> int {
             livesBar.setVisibility(false);
             window.draw(livesBar);
 
-            if (clock.getElapsedTime().asSeconds() > 1) {
+            if (clock.getElapsedTime().asSeconds() > 1.3) {
                 generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont));
                 clock.restart();
             }
