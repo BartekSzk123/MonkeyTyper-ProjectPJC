@@ -148,14 +148,15 @@ auto main() -> int {
                 auto result = sf::Text(currentFont, " ", 15);
                 result.setFillColor(sf::Color::White);
                 result.setString(std::to_string(rank) + ". SCORE:  " + std::to_string(results[i].score)
-                                 + "  TYPED WORDS: " + std::to_string(results[i].typedWords));
+                                 + "  TYPED WORDS: " + std::to_string(results[i].typedWords)
+                                 + "\nPLAYER: " + results[i].playerName);
                 auto resultBounds = result.getLocalBounds();
                 result.setOrigin(sf::Vector2f(resultBounds.size.x / 2, resultBounds.size.y / 2));
                 result.setPosition(sf::Vector2f(window.getSize().x / 2, pos));
 
                 highestResults.emplace_back(result);
                 ++rank;
-                pos += 50;
+                pos += 75;
             }
 
             status = GameStatus::ResultsMenu;
@@ -357,6 +358,7 @@ auto main() -> int {
                 wordsCounter = save.wordsCounter;
                 strikesCounter = save.strikesCounter;
                 speed = save.speed;
+                window.setFramerateLimit(speed);
 
                 scoreBar.setText(
                     "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
@@ -383,6 +385,12 @@ auto main() -> int {
         strikes = std::string();
         status = GameStatus::MainMenu;
     });
+
+    auto playerName = std::string();
+    auto enterName = false;
+    auto nameInputTex = sf::Text(currentFont, "PLAYER NAME: ", 25);
+    nameInputTex.setFillColor(sf::Color::White);
+    nameInputTex.setPosition(sf::Vector2f(250, 500));
 
     buttons.emplace_back(&startButton);
     buttons.emplace_back(&optionButton);
@@ -420,7 +428,7 @@ auto main() -> int {
 
             [&](sf::Event::TextEntered const &event) {
                 textEntered(event, input, generatedWords, score, wordsCounter, scoreBar, currentTyping,
-                    status, scoreSound, wrongSound, soundsOn);
+                    status, scoreSound, wrongSound, soundsOn,playerName, enterName);
             },
 
             [&](sf::Event::KeyPressed const &event) {
@@ -532,8 +540,9 @@ auto main() -> int {
 
                     livesBar.setText("  " + strikes);
                     if (strikesCounter >= 5) {
-                        auto result = BestScores(score, wordsCounter);
-                        ScoresUtils::saveScore(result);
+
+                        playerName.clear();
+                        enterName = true;
 
                         if (soundsOn) {
                             gameOverSound.play();
@@ -555,6 +564,12 @@ auto main() -> int {
             window.draw(scoreBar);
             window.draw(currentTyping);
             window.draw(livesBar);
+
+            if (enterName) {
+                nameInputTex.setString("PLAYER NAME: " + playerName);
+                window.draw(nameInputTex);
+            }
+
             newGame = true;
         }
         window.display();

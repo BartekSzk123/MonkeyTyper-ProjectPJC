@@ -5,7 +5,7 @@ struct BestScores {
 
     int score;
     int typedWords;
-
+    std::string playerName;
 };
 
 namespace ScoresUtils {

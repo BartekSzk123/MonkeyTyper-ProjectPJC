@@ -57,12 +57,13 @@ auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButt
 auto textEntered(sf::Event::TextEntered const &event, std::string& input,
     std::vector<sf::Text>& generatedWords, int& score, int& wordsCounter,
     Button &scoreBar, Button &currentTyping, GameStatus status,
-    sf::Sound &scoreSound, sf::Sound &wrongSound, bool const& soundsOn)->void {
+    sf::Sound &scoreSound, sf::Sound &wrongSound, bool const& soundsOn,
+    std::string& playerName, bool& enterName)->void {
 
     if (event.unicode < 128 && status == GameStatus::GameStart) {
         auto charEntered = static_cast<char>(event.unicode);
 
-        if (charEntered == '\n') {
+        if (charEntered == '\n' || charEntered == '\r') {
 
             auto found = false;
 
@@ -72,7 +73,7 @@ auto textEntered(sf::Event::TextEntered const &event, std::string& input,
                     score += iterator->getString().getSize() * 2;
                     found = true;
                     wordsCounter++;
-                    iterator = generatedWords.erase(iterator);
+                    generatedWords.erase(iterator);
 
                     if (soundsOn) {
                         scoreSound.play();
@@ -104,4 +105,22 @@ auto textEntered(sf::Event::TextEntered const &event, std::string& input,
             }
         }
     }
+
+    if (event.unicode < 128 && status == GameStatus::GameOver && enterName) {
+        auto charEntered = static_cast<char>(event.unicode);
+
+        if (charEntered == '\n' || charEntered == '\r') {
+            auto result = BestScores(score,wordsCounter,playerName);
+            ScoresUtils::saveScore(result);
+            enterName = false;
+        }else if (charEntered == '\b' && !playerName.empty()) {
+            playerName.pop_back();
+        }else {
+            if (!(charEntered == '\b')) {
+                playerName.push_back(charEntered);
+            }
+        }
+    }
+
+
 }
