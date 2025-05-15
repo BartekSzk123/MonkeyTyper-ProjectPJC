@@ -3,6 +3,7 @@
 #include <__random/random_device.h>
 
 int randomWords::charSize = 25;
+sf::Color randomWords::color = sf::Color::White;
 
 auto randomWords::wordsFromFile(std::string const& filePath) -> std::vector<std::string> {
     auto wordsVecotr = std::vector<std::string>();
@@ -28,11 +29,15 @@ auto randomWords::wordsGenerator(std::vector<std::string> const& words, sf::Font
     auto y = posDist(rd);
 
     auto generatedWord = sf::Text(chosenFont, word, charSize);
-    generatedWord.setFillColor(sf::Color::White);
+    generatedWord.setFillColor(color);
     generatedWord.setPosition(sf::Vector2f(x, y));
     return generatedWord;
 }
 
 auto randomWords::setRandomwordsSize(int const& size) -> void {
     charSize = size;
+}
+
+auto randomWords::setRandomwordsColor(sf::Color const& newColor) -> void {
+    color = newColor;
 }

@@ -31,13 +31,13 @@ auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons
 
 
 auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButton, Button const& charSizeButton,
-    Button const& fontButton, Button const& musicButton, Button const& soundsButton) -> void {
+    Button const& fontButton, Button const& musicButton, Button const& soundsButton, Button const& wordsColorButton) -> void {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         wordsSpeedButton.click();
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         charSizeButton.click();
     }
 
@@ -51,6 +51,10 @@ auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButt
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::G) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         soundsButton.click();
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
+        wordsColorButton.click();
     }
 }
 

@@ -201,6 +201,34 @@ auto main() -> int {
         charSizeButton.setText("WORDS SIZE:" + std::to_string(randomWords::charSize));
     });
 
+    auto wordsColorVector = std::vector<sf::Color>{sf::Color::White, sf::Color::Blue, sf::Color::Yellow, sf::Color::Magenta};
+    auto wordsColorIndex = 1;
+
+    auto colorSquere = Button(
+        "",
+        25,
+        currentFont,
+        sf::Vector2f(200, 10),
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.4),
+        [&]()-> void {
+        });
+    colorSquere.setShapeColor(sf::Color::White);
+
+    auto wordsColorButton = Button(
+        "WORDS COLOR",
+        25,
+        currentFont,
+        sf::Vector2f(200, 50),
+        sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.5),
+      [&]()-> void {
+        });
+
+    wordsColorButton.setNewFunction([&]() -> void {
+        randomWords::setRandomwordsColor(wordsColorVector[wordsColorIndex]);
+        colorSquere.setShapeColor(wordsColorVector[wordsColorIndex]);
+        wordsColorIndex = (wordsColorIndex + 1) % wordsColorVector.size();
+    });
+
     auto music = sf::Music();
     if (!music.openFromFile("../sound/01-theme.ogg")) {
         return -1;
@@ -304,8 +332,8 @@ auto main() -> int {
     livesBar.setTextColor(sf::Color::Red);
 
     auto shortCutsBar = Button(
-        "FONT(CTRL+F) | SPEED(CTRL+S) | WORDS SIZE(CTRL+C)\n"
-        "\tON/OFF MUSIC(CTRL+M) | ON/OFF SOUND(CTRL+G)",
+        "FONT(CTRL+F) | SPEED(CTRL+S) | SIZE(CTRL+W) | COLOR(CTRL+C)\n"
+        "\t\tON/OFF MUSIC(CTRL+M) | ON/OFF SOUND(CTRL+G)",
         20,
         currentFont,
         sf::Vector2f(800, 75),
@@ -345,6 +373,7 @@ auto main() -> int {
     auto save = gameSave();
     save.loadGame();
     newGame = save.newGame;
+    auto noGameToResume = false;
 
     auto resumeGameButton = Button(
         "RESUME",
@@ -354,6 +383,7 @@ auto main() -> int {
         sf::Vector2f(window.getSize().x / 2, 225),
         [&]()-> void {
             if (!newGame) {
+                noGameToResume = false;
                 score = save.score;
                 wordsCounter = save.wordsCounter;
                 strikesCounter = save.strikesCounter;
@@ -371,6 +401,8 @@ auto main() -> int {
 
 
                 status = GameStatus::GameStart;
+            }else {
+                noGameToResume = true;
             }
         });
 
@@ -392,6 +424,14 @@ auto main() -> int {
     nameInputTex.setFillColor(sf::Color::White);
     nameInputTex.setPosition(sf::Vector2f(250, 500));
 
+    auto noResumeText = sf::Text(currentFont, "NO GAME TO RESUME", 25);
+    noResumeText.setFillColor(sf::Color::Red);
+    auto noResumeBounds = noResumeText.getLocalBounds();
+    noResumeText.setOrigin(sf::Vector2f(noResumeBounds.position.x  + noResumeBounds.size.x/ 2,
+                                        noResumeBounds.position.y + noResumeBounds.size.y/ 2));
+    noResumeText.setPosition(sf::Vector2f(window.getSize().x / 2, 450));
+
+
     buttons.emplace_back(&startButton);
     buttons.emplace_back(&optionButton);
     buttons.emplace_back(&resultsButton);
@@ -399,6 +439,7 @@ auto main() -> int {
     buttons.emplace_back(&fontButton);
     buttons.emplace_back(&wordsSpeedButton);
     buttons.emplace_back(&charSizeButton);
+    buttons.emplace_back(&wordsColorButton);
     buttons.emplace_back(&musicButton);
     buttons.emplace_back(&resumeGameButton);
     buttons.emplace_back(&scoreBar);
@@ -432,7 +473,7 @@ auto main() -> int {
             },
 
             [&](sf::Event::KeyPressed const &event) {
-                keyPressed(event, wordsSpeedButton, charSizeButton, fontButton, musicButton, soundsButton);
+                keyPressed(event, wordsSpeedButton, charSizeButton, fontButton, musicButton, soundsButton,wordsColorButton);
             }
 
         );
@@ -450,12 +491,24 @@ auto main() -> int {
             window.draw(resumeGameButton);
             fontButton.setVisibility(false);
             wordsSpeedButton.setVisibility(false);
+            wordsColorButton.setVisibility(false);
+            colorSquere.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
             musicButton.setVisibility(false);
             soundsButton.setVisibility(false);
             window.draw(tree);
             window.draw(monkey);
+
+            if (noGameToResume) {
+                window.draw(noResumeText);
+            }
+
+            if (clock.getElapsedTime().asSeconds() > 2) {
+                noGameToResume = false;
+                clock.restart();
+            }
+
         } else if (status == GameStatus::OptionsMenu) {
             window.clear(sf::Color::Black);
             window.draw(logo);
@@ -473,6 +526,9 @@ auto main() -> int {
             window.draw(musicButton);
             soundsButton.setVisibility(true);
             window.draw(soundsButton);
+            wordsColorButton.setVisibility(true);
+            window.draw(wordsColorButton);
+            window.draw(colorSquere);
             backButton.setVisibility(true);
             window.draw(backButton);
             shortCutsBar.setVisibility(false);
@@ -527,7 +583,7 @@ auto main() -> int {
             livesBar.setVisibility(false);
             window.draw(livesBar);
 
-            if (clock.getElapsedTime().asSeconds() > 1.3) {
+            if (clock.getElapsedTime().asSeconds() > 1.1) {
                 generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont));
                 clock.restart();
             }
