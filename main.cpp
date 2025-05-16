@@ -162,25 +162,30 @@ auto main() -> int {
             status = GameStatus::ResultsMenu;
         });
 
-    auto speedVector = std::vector<int>{60, 120, 180, 240};
-    auto speedIndex = 0;
-    auto speed = 120;
+    auto speedVector = std::vector<std::pair<std::string, int>>{
+        {"  SLOW",60},
+        {"NORMAL",120},
+        {"  FAST",180},
+        {" CRAZY",240}};
+
+    auto speedIndex = 1;
+    auto speed = speedVector[speedIndex].second;
     window.setFramerateLimit(speed);
 
     auto wordsSpeedButton = Button(
-        " SPEED: " + std::to_string(speed),
+        " SPEED: " + speedVector[speedIndex].first,
         25,
         currentFont,
-        sf::Vector2f(200, 50),
+        sf::Vector2f(250, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.85),
         [&]() -> void {
         });
 
     wordsSpeedButton.setNewFunction([&]() -> void {
-        speed = speedVector[speedIndex];
         speedIndex = (speedIndex + 1) % speedVector.size();
+        speed = speedVector[speedIndex].second;
         window.setFramerateLimit(speed);
-        wordsSpeedButton.setText(" SPEED: " + std::to_string(speed));
+        wordsSpeedButton.setText(" SPEED: " + speedVector[speedIndex].first);
     });
 
     auto charSizesVector = std::vector<int>{20, 25, 30, 35};
@@ -208,7 +213,7 @@ auto main() -> int {
         "",
         25,
         currentFont,
-        sf::Vector2f(200, 10),
+        sf::Vector2f(250, 10),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.4),
         [&]()-> void {
         });
@@ -218,7 +223,7 @@ auto main() -> int {
         "WORDS COLOR",
         25,
         currentFont,
-        sf::Vector2f(200, 50),
+        sf::Vector2f(250, 50),
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.5),
       [&]()-> void {
         });
@@ -584,7 +589,7 @@ auto main() -> int {
             window.draw(livesBar);
 
             if (clock.getElapsedTime().asSeconds() > 1.1) {
-                generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont));
+                generatedWords.emplace_back(randomWords::wordsGenerator(vec, currentFont,generatedWords));
                 clock.restart();
             }
 

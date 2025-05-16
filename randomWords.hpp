@@ -7,7 +7,7 @@ struct randomWords {
 
     static auto wordsFromFile(std::string const& filePath) -> std::vector<std::string>;
 
-    static auto wordsGenerator(std::vector<std::string> const& words, sf::Font const& chosenFont) -> sf::Text;
+    static auto wordsGenerator(std::vector<std::string> const& words, sf::Font const& chosenFont, std::vector<sf::Text> const& currentWords) -> sf::Text;
 
     static auto setRandomwordsSize(int const& size) -> void;
 

@@ -17,21 +17,36 @@ auto randomWords::wordsFromFile(std::string const& filePath) -> std::vector<std:
     return wordsVecotr;
 }
 
-auto randomWords::wordsGenerator(std::vector<std::string> const& words, sf::Font const& chosenFont) -> sf::Text {
+auto randomWords::wordsGenerator(std::vector<std::string> const &words, sf::Font const &chosenFont,
+                                 std::vector<sf::Text> const &currentWords) -> sf::Text {
     std::random_device rd;
     std::uniform_int_distribution<int> wordDist(0, words.size() - 1);
     std::uniform_int_distribution<int> posDist(100, 499);
 
-    auto index = wordDist(rd);
+    for (auto i = 0; i < 100; i++) {
+        auto index = wordDist(rd);
+        auto word = words[index];
+        auto generatedWord = sf::Text(chosenFont, word, charSize);
+        generatedWord.setFillColor(color);
+        auto x = 5;
+        auto y = posDist(rd);
+        generatedWord.setPosition(sf::Vector2f(x, y));
+        auto bounds = generatedWord.getGlobalBounds();
+        auto collision = false;
 
-    auto word = words[index];
-    auto x = 5;
-    auto y = posDist(rd);
+        for (auto const &word : currentWords) {
+            if (word.getGlobalBounds().findIntersection(bounds)) {
+                collision = true;
+            }
+        }
 
-    auto generatedWord = sf::Text(chosenFont, word, charSize);
-    generatedWord.setFillColor(color);
-    generatedWord.setPosition(sf::Vector2f(x, y));
-    return generatedWord;
+        if (!collision) {
+            generatedWord.setPosition(sf::Vector2f(x, y));
+            return generatedWord;
+        }
+
+    }
+
 }
 
 auto randomWords::setRandomwordsSize(int const& size) -> void {
