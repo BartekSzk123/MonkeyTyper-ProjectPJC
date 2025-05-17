@@ -10,13 +10,25 @@ auto gameSave::saveGame(std::string const& fileName) -> void {
     << wordsCounter << "\n"
     << strikesCounter << "\n"
     << speed << "\n"
-    << newGame;
+    << newGame << "\n";
+
+    for (auto const& word : saveWords) {
+        file << word.first << " " << word.second.x << " " << word.second.y << "\n";
+    }
 }
 
 auto gameSave::loadGame(std::string const& fileName) -> void {
     auto file = std::fstream(fileName);
 
     file >> score >> wordsCounter >> strikesCounter >> speed >> newGame;
+
+    saveWords.clear();
+    auto word = std::string();
+    auto x = 0;
+    auto y = 0;
+    while (file >> word >> x >> y) {
+        saveWords.emplace_back(word, sf::Vector2f(x, y));
+    }
 
 }
 

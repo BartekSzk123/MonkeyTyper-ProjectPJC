@@ -14,8 +14,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 add_executable(MONKEY3 main.cpp
-        button.cpp
-        button.hpp
+        uiElement.cpp
+        uiElement.hpp
         randomWords.hpp
         randomWords.cpp
         gameStatus.hpp

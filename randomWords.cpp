@@ -1,6 +1,6 @@
 #include "randomWords.hpp"
 #include <fstream>
-#include <__random/random_device.h>
+#include <random>
 
 int randomWords::charSize = 25;
 sf::Color randomWords::color = sf::Color::White;

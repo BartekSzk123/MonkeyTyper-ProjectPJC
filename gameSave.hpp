@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-
-#include "gameStatus.hpp"
+#include <vector>
+#include "SFML/System/Vector2.hpp"
 
 struct gameSave {
     int score;
@@ -9,6 +9,7 @@ struct gameSave {
     int strikesCounter;
     int speed;
     bool newGame;
+    std::vector<std::pair<std::string, sf::Vector2f>> saveWords;
 
     auto saveGame(std::string const& fileName = "../gameSave.txt") -> void;
     auto loadGame(std::string const& fileName = "../gameSave.txt") -> void;

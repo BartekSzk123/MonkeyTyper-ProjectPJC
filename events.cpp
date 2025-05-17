@@ -5,7 +5,7 @@ auto onClose(sf::Event::Closed const& event, sf::RenderWindow& window, gameSave 
     window.close();
 }
 
-auto mouseClick(sf::Event::MouseButtonPressed const& event,std::vector<Button*> &buttons) -> void {
+auto mouseClick(sf::Event::MouseButtonPressed const& event,std::vector<uiElement*> &buttons) -> void {
     if (event.button == sf::Mouse::Button::Left) {
         for (auto &b: buttons) {
             auto clicked = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(event.position));
@@ -17,7 +17,7 @@ auto mouseClick(sf::Event::MouseButtonPressed const& event,std::vector<Button*> 
     }
 }
 
-auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons) -> void {
+auto mouseHover(sf::Event::MouseMoved const& event,std::vector<uiElement*> &buttons) -> void {
     for (auto &b: buttons) {
         auto hovered = b->shape.getGlobalBounds().contains(static_cast<sf::Vector2f>(event.position));
 
@@ -30,8 +30,8 @@ auto mouseHover(sf::Event::MouseMoved const& event,std::vector<Button*> &buttons
 }
 
 
-auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButton, Button const& charSizeButton,
-    Button const& fontButton, Button const& musicButton, Button const& soundsButton, Button const& wordsColorButton) -> void {
+auto keyPressed(sf::Event::KeyPressed const& event, uiElement const& wordsSpeedButton, uiElement const& charSizeButton,
+    uiElement const& fontButton, uiElement const& musicButton, uiElement const& soundsButton, uiElement const& wordsColorButton) -> void {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)) {
         wordsSpeedButton.click();
@@ -60,7 +60,7 @@ auto keyPressed(sf::Event::KeyPressed const& event, Button const& wordsSpeedButt
 
 auto textEntered(sf::Event::TextEntered const &event, std::string& input,
     std::vector<sf::Text>& generatedWords, int& score, int& wordsCounter,
-    Button &scoreBar, Button &currentTyping, GameStatus status,
+    uiElement &scoreBar, uiElement &currentTyping, GameStatus status,
     sf::Sound &scoreSound, sf::Sound &wrongSound, bool const& soundsOn,
     std::string& playerName, bool& enterName)->void {
 
@@ -113,14 +113,14 @@ auto textEntered(sf::Event::TextEntered const &event, std::string& input,
     if (event.unicode < 128 && status == GameStatus::GameOver && enterName) {
         auto charEntered = static_cast<char>(event.unicode);
 
-        if (charEntered == '\n' || charEntered == '\r') {
+        if ((charEntered == '\n' || charEntered == '\r') && !playerName.empty()) {
             auto result = BestScores(score,wordsCounter,playerName);
             ScoresUtils::saveScore(result);
             enterName = false;
         }else if (charEntered == '\b' && !playerName.empty()) {
             playerName.pop_back();
         }else {
-            if (!(charEntered == '\b')) {
+            if (!(charEntered == '\b' || charEntered == '\n' || charEntered == '\r')) {
                 playerName.push_back(charEntered);
             }
         }

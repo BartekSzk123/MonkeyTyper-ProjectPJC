@@ -3,14 +3,14 @@
 #include <functional>
 #include <string>
 
-struct Button : sf::Drawable {
+struct uiElement : sf::Drawable {
     sf::Text text;
     sf::Font font;
     sf::RectangleShape shape;
     std::function<void()> click;
     bool isVisible = true;
 
-    Button(const std::string &chosenText,const int &charSize, const sf::Font &chosenFont,const sf::Vector2f &size,
+    uiElement(const std::string &chosenText,const int &charSize, const sf::Font &chosenFont,const sf::Vector2f &size,
         const sf::Vector2f &pos, const std::function<void()> onClick);
 
     void checkClick(const sf::Vector2f &mousePos);

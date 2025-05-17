@@ -1,7 +1,7 @@
-#include "Button.hpp"
+#include "uiElement.hpp"
 
-Button::Button(const std::string &chosenText, const int &charSize, const sf::Font &chosenFont, const sf::Vector2f &size,
-               const sf::Vector2f &pos, const std::function<void()> onClick)
+uiElement::uiElement(const std::string &chosenText, const int &charSize, const sf::Font &chosenFont, const sf::Vector2f &size,
+                     const sf::Vector2f &pos, const std::function<void()> onClick)
     : font(chosenFont), text(font, chosenText, charSize), shape(sf::Vector2f(size)), click(onClick) {
     text.setFillColor(sf::Color::Black);
     text.setOrigin(sf::Vector2f(
@@ -18,7 +18,7 @@ Button::Button(const std::string &chosenText, const int &charSize, const sf::Fon
     shape.setPosition(pos);
 }
 
-void Button::checkClick(const sf::Vector2f &mousePos) {
+void uiElement::checkClick(const sf::Vector2f &mousePos) {
     if (!isVisible) {
         return;
     }
@@ -28,36 +28,36 @@ void Button::checkClick(const sf::Vector2f &mousePos) {
     }
 }
 
-void Button::setFont(const sf::Font &newFont) {
+void uiElement::setFont(const sf::Font &newFont) {
     font = newFont;
     text.setFont(font);
 }
 
-void Button::setShapeColor(const sf::Color &newColor) {
+void uiElement::setShapeColor(const sf::Color &newColor) {
     shape.setFillColor(newColor);
 }
 
-void Button::setTextColor(const sf::Color &newColor) {
+void uiElement::setTextColor(const sf::Color &newColor) {
     text.setFillColor(newColor);
 }
 
-void Button::setVisibility(bool newVisibility) {
+void uiElement::setVisibility(bool newVisibility) {
     isVisible = newVisibility;
 }
 
-void Button::setText(const std::string &newText) {
+void uiElement::setText(const std::string &newText) {
     text.setString(newText);
 }
 
-void Button::setSizeOfShape(const int &newSizeX, const int &newSizeY) {
+void uiElement::setSizeOfShape(const int &newSizeX, const int &newSizeY) {
     shape.setSize(sf::Vector2f(newSizeX, newSizeY));
 }
 
-void Button::setNewFunction(const std::function<void()> &newOnClick) {
+void uiElement::setNewFunction(const std::function<void()> &newOnClick) {
     click = newOnClick;
 }
 
-void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+void uiElement::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(shape, states);
     target.draw(text, states);
 }

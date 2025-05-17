@@ -2,7 +2,7 @@
 #include <SFML/Audio.hpp>
 #include <string>
 #include "BestScores.hpp"
-#include "Button.hpp"
+#include "uiElement.hpp"
 #include "randomWords.hpp"
 #include "gameStatus.hpp"
 #include "events.hpp"
@@ -71,9 +71,9 @@ auto main() -> int {
     auto monkeyOp2 = sf::Sprite(monkeyOp2Texture);
     monkeyOp2.setPosition(sf::Vector2f(550, 350));
 
-    auto buttons = std::vector<Button *>();
+    auto uiElements = std::vector<uiElement *>();
 
-    auto startButton = Button(
+    auto startButton = uiElement(
         "NEW GAME",
         25,
         currentFont,
@@ -84,7 +84,7 @@ auto main() -> int {
         });
 
 
-    auto optionButton = Button(
+    auto optionButton = uiElement(
         "OPTIONS",
         25,
         currentFont,
@@ -101,7 +101,7 @@ auto main() -> int {
         "../fonts/Arial.ttf"
     };
 
-    auto fontButton = Button(
+    auto fontButton = uiElement(
         "CHANGE FONT",
         25,
         currentFont,
@@ -111,12 +111,12 @@ auto main() -> int {
             window.clear(sf::Color::Black);
             currentFont = sf::Font(fontsPaths[fontIndex]);
             fontIndex = (fontIndex + 1) % fontsPaths.size();
-            for (auto &button: buttons) {
-                button->setFont(currentFont);
+            for (auto &element: uiElements) {
+                element->setFont(currentFont);
             }
         });
 
-    auto backButton = Button(
+    auto backButton = uiElement(
         "BACK",
         15,
         currentFont,
@@ -127,7 +127,7 @@ auto main() -> int {
         });
 
     auto highestResults = std::vector<sf::Text>();
-    auto resultsButton = Button(
+    auto resultsButton = uiElement(
         "RESULTS",
         25,
         currentFont,
@@ -172,7 +172,7 @@ auto main() -> int {
     auto speed = speedVector[speedIndex].second;
     window.setFramerateLimit(speed);
 
-    auto wordsSpeedButton = Button(
+    auto wordsSpeedButton = uiElement(
         " SPEED: " + speedVector[speedIndex].first,
         25,
         currentFont,
@@ -191,7 +191,7 @@ auto main() -> int {
     auto charSizesVector = std::vector<int>{20, 25, 30, 35};
     auto charSizesIndex = 2;
 
-    auto charSizeButton = Button(
+    auto charSizeButton = uiElement(
         "WORDS SIZE:" + std::to_string(randomWords::charSize),
         25,
         currentFont,
@@ -209,7 +209,7 @@ auto main() -> int {
     auto wordsColorVector = std::vector<sf::Color>{sf::Color::White, sf::Color::Blue, sf::Color::Yellow, sf::Color::Magenta};
     auto wordsColorIndex = 1;
 
-    auto colorSquere = Button(
+    auto colorRect     = uiElement(
         "",
         25,
         currentFont,
@@ -217,9 +217,9 @@ auto main() -> int {
         sf::Vector2f(window.getSize().x / 2, window.getSize().y / 1.4),
         [&]()-> void {
         });
-    colorSquere.setShapeColor(sf::Color::White);
+    colorRect.setShapeColor(sf::Color::White);
 
-    auto wordsColorButton = Button(
+    auto wordsColorButton = uiElement(
         "WORDS COLOR",
         25,
         currentFont,
@@ -230,7 +230,7 @@ auto main() -> int {
 
     wordsColorButton.setNewFunction([&]() -> void {
         randomWords::setRandomwordsColor(wordsColorVector[wordsColorIndex]);
-        colorSquere.setShapeColor(wordsColorVector[wordsColorIndex]);
+        colorRect.setShapeColor(wordsColorVector[wordsColorIndex]);
         wordsColorIndex = (wordsColorIndex + 1) % wordsColorVector.size();
     });
 
@@ -260,7 +260,7 @@ auto main() -> int {
     auto gameOverSound = sf::Sound(gameOverSoundBuffer);
 
     auto musicOn = true;
-    auto musicButton = Button(
+    auto musicButton = uiElement(
         "MUSIC: ON",
         25,
         currentFont,
@@ -282,7 +282,7 @@ auto main() -> int {
 
 
     auto soundsOn = true;
-    auto soundsButton = Button(
+    auto soundsButton = uiElement(
         "SOUND: ON",
         25,
         currentFont,
@@ -304,7 +304,7 @@ auto main() -> int {
     auto score = 0;
     auto wordsCounter = 0;
 
-    auto scoreBar = Button(
+    auto scoreBar = uiElement(
         "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter),
         20,
         currentFont,
@@ -313,7 +313,7 @@ auto main() -> int {
         [&]()-> void {
         });
 
-    auto currentTyping = Button(
+    auto currentTyping = uiElement(
         "INPUT:  ",
         20,
         currentFont,
@@ -326,7 +326,7 @@ auto main() -> int {
     auto strikesCounter = 0;
     auto strikes = std::string();
 
-    auto livesBar = Button(
+    auto livesBar = uiElement(
         " STRIKES",
         25,
         currentFont,
@@ -336,7 +336,7 @@ auto main() -> int {
         });
     livesBar.setTextColor(sf::Color::Red);
 
-    auto shortCutsBar = Button(
+    auto shortCutsBar = uiElement(
         "FONT(CTRL+F) | SPEED(CTRL+S) | SIZE(CTRL+W) | COLOR(CTRL+C)\n"
         "\t\tON/OFF MUSIC(CTRL+M) | ON/OFF SOUND(CTRL+G)",
         20,
@@ -375,18 +375,36 @@ auto main() -> int {
     };
 
     auto newGame = true;
+    auto gamePause = false;
     auto save = gameSave();
     save.loadGame();
     newGame = save.newGame;
     auto noGameToResume = false;
 
-    auto resumeGameButton = Button(
+    auto resumeGameButton = uiElement(
         "RESUME",
         25,
         currentFont,
         sf::Vector2f(200, 50),
         sf::Vector2f(window.getSize().x / 2, 225),
         [&]()-> void {
+
+            if (gamePause) {
+                noGameToResume = false;
+                gamePause = false;
+                status = GameStatus::GameStart;
+
+                scoreBar.setText(
+                    "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
+
+                for (auto i = 0; i < strikesCounter; i++) {
+                    strikes += "X";
+                }
+
+                livesBar.setText("  " + strikes);
+                return;
+            }
+
             if (!newGame) {
                 noGameToResume = false;
                 score = save.score;
@@ -394,6 +412,15 @@ auto main() -> int {
                 strikesCounter = save.strikesCounter;
                 speed = save.speed;
                 window.setFramerateLimit(speed);
+
+                generatedWords.clear();
+                for (auto const& savedWord : save.saveWords) {
+                    auto word = sf::Text(currentFont, savedWord.first ,randomWords::charSize);
+                    word.setFillColor(randomWords::color);
+                    word.setPosition(savedWord.second);
+                    generatedWords.push_back(word);
+                }
+
 
                 scoreBar.setText(
                     "SCORE: " + std::to_string(score) + "\tTYPED WORDS: " + std::to_string(wordsCounter));
@@ -419,6 +446,7 @@ auto main() -> int {
 
     backButton.setNewFunction([&]() -> void {
         save.updateGameSave(score, wordsCounter, strikesCounter, speed, newGame);
+        gamePause = (status == GameStatus::GameStart);
         strikes = std::string();
         status = GameStatus::MainMenu;
     });
@@ -429,7 +457,7 @@ auto main() -> int {
     nameInputTex.setFillColor(sf::Color::White);
     nameInputTex.setPosition(sf::Vector2f(250, 500));
 
-    auto noResumeText = sf::Text(currentFont, "NO GAME TO RESUME", 25);
+    auto noResumeText = sf::Text(currentFont, " THERE IS NO GAME TO RESUME", 25);
     noResumeText.setFillColor(sf::Color::Red);
     auto noResumeBounds = noResumeText.getLocalBounds();
     noResumeText.setOrigin(sf::Vector2f(noResumeBounds.position.x  + noResumeBounds.size.x/ 2,
@@ -437,21 +465,21 @@ auto main() -> int {
     noResumeText.setPosition(sf::Vector2f(window.getSize().x / 2, 450));
 
 
-    buttons.emplace_back(&startButton);
-    buttons.emplace_back(&optionButton);
-    buttons.emplace_back(&resultsButton);
-    buttons.emplace_back(&backButton);
-    buttons.emplace_back(&fontButton);
-    buttons.emplace_back(&wordsSpeedButton);
-    buttons.emplace_back(&charSizeButton);
-    buttons.emplace_back(&wordsColorButton);
-    buttons.emplace_back(&musicButton);
-    buttons.emplace_back(&resumeGameButton);
-    buttons.emplace_back(&scoreBar);
-    buttons.emplace_back(&currentTyping);
-    buttons.emplace_back(&livesBar);
-    buttons.emplace_back(&shortCutsBar);
-    buttons.emplace_back(&soundsButton);
+    uiElements.emplace_back(&startButton);
+    uiElements.emplace_back(&optionButton);
+    uiElements.emplace_back(&resultsButton);
+    uiElements.emplace_back(&backButton);
+    uiElements.emplace_back(&fontButton);
+    uiElements.emplace_back(&wordsSpeedButton);
+    uiElements.emplace_back(&charSizeButton);
+    uiElements.emplace_back(&wordsColorButton);
+    uiElements.emplace_back(&musicButton);
+    uiElements.emplace_back(&resumeGameButton);
+    uiElements.emplace_back(&scoreBar);
+    uiElements.emplace_back(&currentTyping);
+    uiElements.emplace_back(&livesBar);
+    uiElements.emplace_back(&shortCutsBar);
+    uiElements.emplace_back(&soundsButton);
 
 
     auto clock = sf::Clock();
@@ -460,16 +488,21 @@ auto main() -> int {
 
             [&](sf::Event::Closed const &event) {
 
+                save.saveWords.clear();
+                for (auto const& word : generatedWords) {
+                    save.saveWords.emplace_back(word.getString(), word.getPosition());
+                }
+
                 save.updateGameSave(score, wordsCounter, strikesCounter, speed, newGame);
                 onClose(event, window,save);
             },
 
             [&](sf::Event::MouseButtonPressed const &event) {
-                mouseClick(event, buttons);
+                mouseClick(event, uiElements);
             },
 
             [&](sf::Event::MouseMoved const &event) {
-                mouseHover(event, buttons);
+                mouseHover(event, uiElements);
             },
 
             [&](sf::Event::TextEntered const &event) {
@@ -497,7 +530,7 @@ auto main() -> int {
             fontButton.setVisibility(false);
             wordsSpeedButton.setVisibility(false);
             wordsColorButton.setVisibility(false);
-            colorSquere.setVisibility(false);
+            colorRect.setVisibility(false);
             backButton.setVisibility(false);
             charSizeButton.setVisibility(false);
             musicButton.setVisibility(false);
@@ -533,7 +566,7 @@ auto main() -> int {
             window.draw(soundsButton);
             wordsColorButton.setVisibility(true);
             window.draw(wordsColorButton);
-            window.draw(colorSquere);
+            window.draw(colorRect);
             backButton.setVisibility(true);
             window.draw(backButton);
             shortCutsBar.setVisibility(false);
